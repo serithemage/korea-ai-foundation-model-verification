@@ -1,4 +1,40 @@
-# Solar-Open-100B "From Scratch" 검증 프로젝트
+# 국가 AI 파운데이션 모델 "From Scratch" 검증 프로젝트
+
+## 프로젝트 개요
+
+### 시작 동기
+
+2026년 1월, 한국 AI 업계에서 "from scratch 학습" 논란이 발생했습니다. 이 논란을 계기로 **LLM에 문외한인 소프트웨어 개발자가 학습과 병행하여 어디까지 모델 검증이라는 전문 영역의 작업을 수행할 수 있는지** 검증해보고자 이 프로젝트를 시작했습니다.
+
+### 저자 배경
+
+- 30년차 소프트웨어 개발자
+- 수학 전공 (낙제점이지만)
+- LLM/ML 분야 비전문가
+
+### 프로젝트 목표
+
+1. **학습**: LLM 모델 검증 방법론 습득
+2. **실습**: 실제 공개 모델에 검증 기법 적용
+3. **문서화**: 학습 과정을 Q&A 튜토리얼로 기록
+
+### 검증 대상 모델
+
+특정 모델만 검증하는 것은 불공평하다고 판단하여, **국가 AI 파운데이션 모델 프로젝트**에 참여한 5개 기관의 공개 모델을 모두 검증 대상에 포함시켰습니다.
+
+| 기관 | 모델명 | 파라미터 | 유형 | HuggingFace |
+|------|--------|----------|------|-------------|
+| **NAVER Cloud** | HyperCLOVAX-SEED-Think | 32B | Dense | [링크](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B) |
+| **Upstage** | Solar-Open-100B | 102B | MoE | [링크](https://huggingface.co/upstage/Solar-Open-100B) |
+| **SKT** | A.X-K1 | 519B | MoE | [링크](https://huggingface.co/skt/A.X-K1) |
+| **NC AI** | VAETKI | 112B | MoE | [링크](https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI) |
+| **LG AI 연구원** | K-EXAONE | 236B | MoE | [링크](https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B) |
+
+### 튜토리얼 안내
+
+[Q&A 튜토리얼](docs/00-tutorial.md)에는 검증 과정에서 학습한 질문과 답변들이 정리되어 있습니다. LLM 검증 방법론에 관심 있는 분들께 참고가 되길 바랍니다.
+
+---
 
 ## 튜토리얼 자동 업데이트 시스템
 
@@ -127,17 +163,7 @@ solar-open-100b-scratch-verification/
 
 ---
 
-## 프로젝트 개요
-
-[upstage/Solar-Open-100B](https://huggingface.co/upstage/Solar-Open-100B) 모델이 실제로 "from scratch" (전체 가중치를 random initialization에서 시작하여 재학습)로 만들어졌는지 검증하는 프로젝트입니다.
-
-이 프로젝트는 검증 과정에서 학습한 내용을 Q&A 튜토리얼 형태로 기록하여, LLM 모델의 학습 방식을 검증하는 방법론을 문서화합니다.
-
-**튜토리얼 바로가기**: [Q&A 튜토리얼](docs/00-tutorial.md)
-
----
-
-## Solar-Open-100B 공식 정보
+## Solar-Open-100B 공식 정보 (검증 진행 중)
 
 | 항목 | 값 |
 |------|-----|
