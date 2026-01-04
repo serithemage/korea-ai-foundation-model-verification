@@ -254,10 +254,6 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
 3. 고유한 Expert 구성 (128 routed + 1 shared)
 4. Upstage의 공개 검증 세션에서 training logs, checkpoints 제시
 
-**주의 사항:**
-1. ~~GLM-4.5-Air와의 LayerNorm 96.8% 유사도 의혹~~ → **[독립 검증으로 해소](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)**
-2. GLM-4.5-Air의 상세 config 미공개로 직접 비교 불가
-
 ### LayerNorm 유사도 의혹 검증 결과
 
 [hyunwoongko의 독립 검증](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)에서 LayerNorm 96.8% 유사도 주장이 **방법론적 오류**였음이 밝혀졌습니다:
@@ -273,8 +269,15 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
 
 ## 참고 자료
 
+### 검증 대상 모델
 - [Hugging Face - Solar-Open-100B](https://huggingface.co/upstage/Solar-Open-100B)
+- [Hugging Face - HyperCLOVAX-SEED-Think-32B](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B)
+
+### 독립 검증 및 논문
 - [LayerNorm 유사도 독립 검증 (hyunwoongko)](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)
+- [HyperCLOVA X Technical Report (arXiv)](https://arxiv.org/html/2404.01954v1)
+
+### 검증 방법론
 - [Model Integrity Verification](https://www.nightfall.ai/ai-security-101/model-integrity-verification)
 - [LLM Evaluation Approaches](https://magazine.sebastianraschka.com/p/llm-evaluation-4-approaches)
 
