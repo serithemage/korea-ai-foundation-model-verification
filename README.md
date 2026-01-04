@@ -54,7 +54,9 @@
 | **Tokenizer** | vocab_size 196,608 (모든 모델과 불일치) | ✅ 강력 지지 |
 | **Architecture** | 48 layers, 129 experts (고유 구성) | ✅ 강력 지지 |
 | **Weight** | Architecture 불일치로 비교 불가 | ✅ 간접 지지 |
-| **행동** | 공개 검증 세션에서 training logs 제시 | ⚠️ 조건부 지지 |
+| **행동** | 공개 검증 세션에서 training logs 제시 | ⚠️ 조건부 지지* |
+
+> *조건부 지지: Training logs는 공개 세션 참석자만 직접 확인 가능했으며, 외부에서 독립적으로 검증할 수 없음. 단, [YouTube Live](https://www.youtube.com/live/2YY9aAUSo_w)로 공개되어 투명성은 확보됨.
 
 **판정: From scratch 신뢰 가능**
 
