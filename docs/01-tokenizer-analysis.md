@@ -112,14 +112,38 @@ Tokenizer 분석은 LLM이 from scratch로 학습되었는지 판별하는 가�
 
 ---
 
-### 3. SKT A.X-K1 📋
+### 3. SKT A.X-K1 ✅
 
-**검증 상태**: 대기 중
+**검증일**: 2026-01-05
 
-| 항목 | 값 |
-|------|-----|
-| **예상 Vocab Size** | 미확인 |
-| **Tokenizer Type** | 미확인 |
+#### Vocabulary 크기 비교
+
+| 모델 | Vocab Size | 비고 |
+|------|-----------|------|
+| **A.X-K1** | **163,840** | 모든 모델과 불일치 |
+| Solar-Open-100B | 196,608 | -17% |
+| Qwen2-72B | 152,064 | +8% |
+| DeepSeek-V2 | 102,400 | +60% |
+
+#### Special Tokens 구성
+
+| 토큰 | 값 | 비고 |
+|------|-----|------|
+| `bos_token` | `<\|endoftext\|>` | GPT 스타일 |
+| `eos_token` | `<\|im_end\|>` | ChatML 스타일 |
+| `pad_token` | `<\|pad\|>` | |
+| `<\|think\|>`, `</think>` | Reasoning | Chain-of-thought 지원 |
+| `<\|image\|>`, `<\|video_*\|>` | Multimodal | VLM 준비 |
+
+#### 판정
+
+| 지표 | 결과 | 해석 |
+|------|------|------|
+| **Vocab Size 일치** | 0개 모델 | ✅ From scratch 지지 |
+| **Special Tokens** | ChatML + 고유 토큰 | ✅ 독자 설계 |
+| **Tokenizer Type** | PreTrainedTokenizerFast | ⚠️ 중립 |
+
+**결론: From scratch 학습 주장 지지**
 
 ---
 

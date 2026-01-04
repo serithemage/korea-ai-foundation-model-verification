@@ -35,7 +35,7 @@
 |------|--------|----------|------|-------------|-----------|------|
 | **Upstage** | Solar-Open-100B | 102B | MoE | [링크](https://huggingface.co/upstage/Solar-Open-100B) | ✅ 완료 | From scratch 신뢰 |
 | **NAVER Cloud** | HyperCLOVAX-SEED-Think | 32B | Dense (VLM) | [링크](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B) | ⚠️ 진행중 | 부분적 재사용 |
-| **SKT** | A.X-K1 | 519B | MoE | [링크](https://huggingface.co/skt/A.X-K1) | 📋 대기 | - |
+| **SKT** | A.X-K1 | 519B | MoE | [링크](https://huggingface.co/skt/A.X-K1) | ✅ 완료 | From scratch 신뢰 |
 | **NC AI** | VAETKI | 112B | MoE | [링크](https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI) | 📋 대기 | - |
 | **LG AI 연구원** | K-EXAONE | 236B | MoE | [링크](https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B) | 📋 대기 | - |
 
@@ -78,13 +78,20 @@
 
 ---
 
-#### 3. SKT A.X-K1 📋
+#### 3. SKT A.X-K1 ✅
 
-| 항목 | 값 |
-|------|-----|
-| **모델 유형** | MoE |
-| **총 파라미터** | 519B |
-| **검증 상태** | 대기 중 |
+| 분석 방법 | 결과 | From scratch 지지 |
+|----------|------|------------------|
+| **Tokenizer** | vocab_size 163,840 (모든 모델과 불일치) | ✅ 강력 지지 |
+| **Architecture** | 61 layers, 193 experts, MHA (고유 구성) | ✅ 강력 지지 |
+| **Weight** | Architecture 불일치로 비교 불가 | ✅ 간접 지지 |
+| **행동** | 미수행 | - |
+
+**판정: From scratch 신뢰 가능**
+
+상세 분석:
+- [Tokenizer 분석](docs/01-tokenizer-analysis.md)
+- [Architecture 분석](docs/03-architecture-analysis.md)
 
 ---
 

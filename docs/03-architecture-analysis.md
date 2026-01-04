@@ -162,15 +162,89 @@ HyperCLOVAX-SEED-Think-32B는 **VLM**으로 세 가지 컴포넌트로 구성됩
 
 ---
 
-### 3. SKT A.X-K1 📋
+### 3. SKT A.X-K1 ✅
 
-**검증 상태**: 대기 중
+**검증일**: 2026-01-05
+
+#### 기본 정보
 
 | 항목 | 값 |
 |------|-----|
-| **모델 유형** | MoE |
+| **모델 유형** | Mixture-of-Experts (MoE) |
+| **model_type** | AXK1 (고유) |
 | **총 파라미터** | 519B |
-| **Architecture 분석** | 미수행 |
+| **활성 파라미터** | ~22B (토큰당, top-8 experts) |
+| **Expert 구성** | 193개 (192 routed + 1 shared, top-8 활성화) |
+| **Context Length** | 131,072 tokens (YaRN RoPE scaling) |
+
+#### Architecture 비교 요약
+
+| 파라미터 | A.X-K1 | Solar-Open-100B | DeepSeek-V2 | Qwen2-57B | 일치 모델 |
+|----------|--------|-----------------|-------------|-----------|----------|
+| hidden_size | 7,168 | 4,096 | 5,120 | 3,584 | 없음 |
+| num_layers | 61 | 48 | 60 | 28 | 없음 |
+| num_heads | 64 | 64 | 128 | 28 | Solar만 |
+| num_kv_heads | 64 (MHA) | 8 (GQA) | 128 | 4 | 없음 |
+| n_experts | 192+1 | 128+1 | 160+2 | 64 | 없음 |
+| experts_per_tok | 8 | 8 | 6 | 8 | Solar, Qwen |
+| vocab_size | 163,840 | 196,608 | 102,400 | 151,936 | 없음 |
+| rope_theta | 10,000 | 1,000,000 | 10,000 | 1,000,000 | DeepSeek만 |
+| intermediate_size | 18,432 | N/A | 12,288 | 2,560 | 없음 |
+
+#### Attention 구조
+
+| 항목 | 값 | 비고 |
+|------|-----|------|
+| **Attention Type** | MHA (Multi-Head Attention) | num_heads = num_kv_heads = 64 |
+| **Head Dimension** | 112 (7168 / 64) | |
+| **Q Lora Rank** | 1,536 | Low-rank attention 사용 |
+| **KV Lora Rank** | 512 | |
+
+A.X-K1은 GQA가 아닌 **MHA(Multi-Head Attention)**을 사용하며, Low-rank projection을 적용합니다.
+
+#### MoE 구조
+
+| 항목 | 값 | 비고 |
+|------|-----|------|
+| **Routed Experts** | 192 | 가장 많은 expert 수 |
+| **Shared Experts** | 1 | 모든 토큰에 활성화 |
+| **Top-k** | 8 | Solar와 동일 |
+| **MoE Intermediate Size** | 2,560 | |
+| **Scoring Function** | softmax | |
+| **Norm Top-k Prob** | True | |
+
+#### RoPE Scaling (YaRN)
+
+| 항목 | 값 |
+|------|-----|
+| **type** | yarn |
+| **factor** | 4.0 |
+| **original_max_position_embeddings** | 32,768 |
+| **beta_fast** | 32.0 |
+| **beta_slow** | 1.0 |
+| **mscale** | 1.0 |
+| **mscale_all_dim** | 0.0 |
+
+YaRN scaling을 통해 32K → 131K context length 확장.
+
+#### 고유 특징
+
+1. **model_type: AXK1** - 완전히 고유한 모델 타입
+2. **hidden_size: 7,168** - 모든 비교 대상 중 가장 큼
+3. **193개 Expert 구성** (192 routed + 1 shared) - 가장 많은 expert 수
+4. **MHA 사용** - 최신 MoE 모델들이 GQA를 선호하는 추세와 다름
+5. **vocab_size: 163,840** - 모든 비교 대상과 불일치
+6. **Low-rank Attention** - Q/KV에 LoRA rank 적용
+
+#### 판정
+
+| 일치 항목 수 | 비교 대상 | 결과 |
+|-------------|----------|------|
+| **1/9** | Solar-Open-100B | num_heads만 일치 |
+| **1/9** | DeepSeek-V2 | rope_theta만 일치 |
+| **1/9** | Qwen2-57B | experts_per_tok만 일치 |
+
+**결론: 0/5 핵심 항목 완전 일치 → 독립적 설계 (From scratch 지지)**
 
 ---
 
@@ -202,12 +276,13 @@ HyperCLOVAX-SEED-Think-32B는 **VLM**으로 세 가지 컴포넌트로 구성됩
 
 | 모델 | Type | Layers | Hidden | Heads | KV Heads | Experts | Vocab |
 |------|------|--------|--------|-------|----------|---------|-------|
-| **Solar-Open-100B** | MoE | 48 | 4096 | 64 | 8 | 128+1 | 196,608 |
-| **HyperCLOVAX-SEED** | Dense | 72 | 5120 | 40 | 8 | - | 128,256 |
-| Mixtral-8x7B | MoE | 32 | 4096 | 32 | 8 | 8 | 32,000 |
-| DeepSeek-V2 | MoE | 60 | 5120 | 128 | 128 | 160+2 | 102,400 |
-| Qwen2-57B-A14B | MoE | 28 | 3584 | 28 | 4 | 64 | 151,936 |
-| Llama-3-70B | Dense | 80 | 8192 | 64 | 8 | - | 128,256 |
+| **Solar-Open-100B** | MoE | 48 | 4,096 | 64 | 8 | 128+1 | 196,608 |
+| **HyperCLOVAX-SEED** | Dense | 72 | 5,120 | 40 | 8 | - | 128,256 |
+| **A.X-K1** | MoE | 61 | 7,168 | 64 | 64 | 192+1 | 163,840 |
+| Mixtral-8x7B | MoE | 32 | 4,096 | 32 | 8 | 8 | 32,000 |
+| DeepSeek-V2 | MoE | 60 | 5,120 | 128 | 128 | 160+2 | 102,400 |
+| Qwen2-57B-A14B | MoE | 28 | 3,584 | 28 | 4 | 64 | 151,936 |
+| Llama-3-70B | Dense | 80 | 8,192 | 64 | 8 | - | 128,256 |
 
 ---
 
