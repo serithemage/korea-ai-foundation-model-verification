@@ -70,11 +70,14 @@
 |----------|------|-------------------|
 | **Vision Encoder** | Qwen2.5 ViT 사용 (config에 명시) | ❌ 재사용 |
 | **Text Decoder** | 고유 architecture (rope_theta 50M) | ⚠️ 추가 검증 필요 |
-| **Tokenizer** | vocab_size 128,256 = Llama 3 동일 | ⚠️ 의문점 |
+| **Tokenizer** | vocab_size 128,256 (Llama 3와 256 차이) | ⚠️ 재해석 필요 |
 
 **판정: 부분적 재사용 (Vision Encoder는 from scratch 아님)**
 
-상세 분석: 각 분석 문서의 "모델별 검증 결과" 섹션 참조
+상세 분석:
+- [Tokenizer 분석](docs/01-tokenizer-analysis.md)
+- [Architecture 분석](docs/03-architecture-analysis.md)
+- [행동 분석](docs/04-behavior-analysis.md)
 
 ---
 
