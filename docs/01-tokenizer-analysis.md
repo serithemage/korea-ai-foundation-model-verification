@@ -147,14 +147,40 @@ Tokenizer 분석은 LLM이 from scratch로 학습되었는지 판별하는 가�
 
 ---
 
-### 4. NC AI VAETKI 📋
+### 4. NC AI VAETKI ✅
 
-**검증 상태**: 대기 중
+**검증일**: 2026-01-05
 
-| 항목 | 값 |
-|------|-----|
-| **예상 Vocab Size** | 미확인 |
-| **Tokenizer Type** | 미확인 |
+#### Vocabulary 크기 비교
+
+| 모델 | Vocab Size | 비고 |
+|------|-----------|------|
+| **VAETKI** | **137,216** | 모든 모델과 불일치 |
+| Solar-Open-100B | 196,608 | -30% |
+| A.X-K1 | 163,840 | -16% |
+| Llama-3 | 128,256 | +7% |
+| Qwen2-72B | 152,064 | -10% |
+
+#### Special Tokens 구성
+
+| 토큰 | 값 | 비고 |
+|------|-----|------|
+| `bos_token` | `<\|START\|>` | 고유 스타일 |
+| `eos_token` | `<\|END\|>` | 고유 스타일 |
+| `pad_token` | `<\|END\|>` | eos와 동일 |
+| `<tool_start>`, `<tool_end>` | Tool calling | 함수 호출 지원 |
+| `<think>`, `</think>` | Reasoning | Chain-of-thought 지원 |
+| `<\|role_start\|>`, `<\|role_end\|>` | Conversation | 대화 역할 구분 |
+
+#### 판정
+
+| 지표 | 결과 | 해석 |
+|------|------|------|
+| **Vocab Size 일치** | 0개 모델 | ✅ From scratch 지지 |
+| **Special Tokens** | 완전히 고유한 패턴 | ✅ 독자 설계 |
+| **Tokenizer Type** | PreTrainedTokenizerFast | ⚠️ 중립 |
+
+**결론: From scratch 학습 주장 지지**
 
 ---
 
