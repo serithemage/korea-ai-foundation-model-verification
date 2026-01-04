@@ -343,9 +343,25 @@ def compare_model_behaviors(models, test_prompts):
 | 요소 | From scratch 지지 | 주의 필요 |
 |------|------------------|----------|
 | 공개 검증 | ✅ Training logs 제시 | - |
-| 외부 검증 | ✅ 전문가 초청 | 독립적 3자 검증 없음 |
-| 표절 의혹 대응 | ✅ 고석현 부분 사과 | LayerNorm 유사도 설명 부족 |
+| 외부 검증 | ✅ 전문가 초청 | - |
+| 표절 의혹 대응 | ✅ 고석현 부분 사과 | - |
+| LayerNorm 유사도 | ✅ 독립 검증으로 해소 | - |
 | GLM 비교 | - | Config 미공개로 비교 불가 |
+
+---
+
+## LayerNorm 유사도 의혹 독립 검증 (2026-01-05 추가)
+
+[hyunwoongko의 검증](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)에서 LayerNorm 96.8% 유사도 주장이 **방법론적 오류**였음이 밝혀졌습니다:
+
+| 발견 | 설명 |
+|------|------|
+| **동일 모델 내 유사도** | 같은 모델의 다른 레이어 간에도 0.99 수준 cosine similarity |
+| **초기화 특성** | LayerNorm weight가 1.0으로 초기화되어 방향적 일관성 유지 |
+| **Centered cosine 분석** | 평균 오프셋 제거 시 모델 간 유사도가 **거의 0으로 하락** |
+| **Phi-3.5-MoE 비교** | Solar가 GLM보다 Phi에 더 가깝다는 증거도 없음 |
+
+**결론**: Cosine similarity만으로는 LayerNorm 비교가 신뢰할 수 없음. 원래 주장은 초기화 편향에 의한 **false positive**.
 
 ---
 
@@ -354,6 +370,7 @@ def compare_model_behaviors(models, test_prompts):
 행동 분석은 knowledge cutoff, refusal pattern 등의 정보 부족으로 제한적이나:
 
 1. **표절 논란에 대한 Upstage의 적극적 대응** (공개 검증, 증거 제시)
-2. **이전 분석(Tokenizer, Architecture)에서 확인된 고유성**
+2. **LayerNorm 유사도 의혹의 독립 검증으로 해소**
+3. **이전 분석(Tokenizer, Architecture)에서 확인된 고유성**
 
-을 종합하면, **From scratch 주장은 일정 수준 신뢰 가능**합니다.
+을 종합하면, **From scratch 주장은 신뢰할 수 있습니다**.

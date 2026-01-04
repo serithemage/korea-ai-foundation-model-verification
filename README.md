@@ -23,13 +23,13 @@
 하는김에 **국가 AI 파운데이션 모델 프로젝트**에 참여한 5개 기관의 공개 모델을 모두 검증 대상에 포함시켰습니다.
 어디까지나 비 전문가가 LLM(클로드, 퍼플렉시티)에 의존하여 진행한 것이니 결과에 대해서는 책임을 지지 않습니다. 재미로 봐 주시고 전문가 분이 이슈에 의견 주시면 검증에 반영하도록 하겠습니다.
 
-| 기관 | 모델명 | 파라미터 | 유형 | HuggingFace |
-|------|--------|----------|------|-------------|
-| **NAVER Cloud** | HyperCLOVAX-SEED-Think | 32B | Dense | [링크](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B) |
-| **Upstage** | Solar-Open-100B | 102B | MoE | [링크](https://huggingface.co/upstage/Solar-Open-100B) |
-| **SKT** | A.X-K1 | 519B | MoE | [링크](https://huggingface.co/skt/A.X-K1) |
-| **NC AI** | VAETKI | 112B | MoE | [링크](https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI) |
-| **LG AI 연구원** | K-EXAONE | 236B | MoE | [링크](https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B) |
+| 기관 | 모델명 | 파라미터 | 유형 | HuggingFace | 검증 상태 |
+|------|--------|----------|------|-------------|-----------|
+| **NAVER Cloud** | HyperCLOVAX-SEED-Think | 32B | Dense (VLM) | [링크](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B) | ⚠️ [진행중](docs/05-hyperclovax-analysis.md) |
+| **Upstage** | Solar-Open-100B | 102B | MoE | [링크](https://huggingface.co/upstage/Solar-Open-100B) | ✅ 완료 |
+| **SKT** | A.X-K1 | 519B | MoE | [링크](https://huggingface.co/skt/A.X-K1) | 📋 대기 |
+| **NC AI** | VAETKI | 112B | MoE | [링크](https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI) | 📋 대기 |
+| **LG AI 연구원** | K-EXAONE | 236B | MoE | [링크](https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B) | 📋 대기 |
 
 ### 튜토리얼 안내
 
@@ -255,23 +255,26 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
 4. Upstage의 공개 검증 세션에서 training logs, checkpoints 제시
 
 **주의 사항:**
-1. GLM-4.5-Air와의 LayerNorm 96.8% 유사도 의혹 (Upstage 해명 필요)
+1. ~~GLM-4.5-Air와의 LayerNorm 96.8% 유사도 의혹~~ → **[독립 검증으로 해소](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)**
 2. GLM-4.5-Air의 상세 config 미공개로 직접 비교 불가
-3. 독립적 제3자 검증 결과 부재
 
-### 추가 검증 권장 사항
+### LayerNorm 유사도 의혹 검증 결과
 
-| 항목 | 방법 | 가능 시점 |
-|------|------|----------|
-| GLM-4.5-Air config 비교 | Zhipu AI config 공개 시 architecture 비교 | 미정 |
-| LayerNorm weight 검증 | 두 모델 weight 직접 비교 | GLM config 공개 시 |
-| 독립적 3자 검증 | 학술/산업 기관 검증 | 미정 |
+[hyunwoongko의 독립 검증](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)에서 LayerNorm 96.8% 유사도 주장이 **방법론적 오류**였음이 밝혀졌습니다:
+
+| 발견 | 설명 |
+|------|------|
+| **동일 모델 내 유사도** | 같은 모델의 다른 레이어 간에도 0.99 수준의 높은 cosine similarity |
+| **초기화 특성** | LayerNorm weight가 1.0으로 초기화되어 방향적 일관성 유지 |
+| **Centered cosine 분석** | 평균 오프셋 제거 시 **모델 간 유사도가 거의 0으로 하락** |
+| **결론** | 원래 주장된 높은 유사도는 초기화 편향의 결과, 실제 파라미터 정렬 아님 |
 
 ---
 
 ## 참고 자료
 
 - [Hugging Face - Solar-Open-100B](https://huggingface.co/upstage/Solar-Open-100B)
+- [LayerNorm 유사도 독립 검증 (hyunwoongko)](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)
 - [Model Integrity Verification](https://www.nightfall.ai/ai-security-101/model-integrity-verification)
 - [LLM Evaluation Approaches](https://magazine.sebastianraschka.com/p/llm-evaluation-4-approaches)
 

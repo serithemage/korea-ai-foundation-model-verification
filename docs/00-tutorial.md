@@ -4,6 +4,57 @@
 
 ---
 
+## Q0: 왜 "from scratch" vs "fine-tuning" 논란이 발생하나요?
+
+**질문 시각**: 2026-01-05
+
+**답변**:
+
+### 국가 AI 파운데이션 모델 프로젝트 규정
+
+한국 정부의 국가 AI 파운데이션 모델 프로젝트는 **"from scratch 학습"을 필수 요건**으로 규정하고 있습니다.
+
+| 학습 방식 | 정의 | 프로젝트 적합성 |
+|----------|------|----------------|
+| **From scratch** | 무작위 초기화된 weight에서 시작하여 전체 학습 수행 | ✅ 적합 |
+| **Fine-tuning** | 기존 모델의 pre-trained weight를 가져와 추가 학습 | ❌ 부적합 |
+
+### 논란의 핵심 이유
+
+**1. AI 주권 (AI Sovereignty)**
+
+From scratch 학습을 요구하는 이유는 **기술적 독립성** 확보입니다:
+- 기존 모델(Llama, GPT 등)의 weight를 사용하면 해당 모델의 라이선스와 제약에 종속
+- 국가 전략 기술로서 독자적인 기술력 보유 필요
+- 향후 모델 수정/확장에서의 자유도 확보
+
+**2. 국민 세금 사용**
+
+국가 프로젝트는 정부 예산(국민 세금)으로 진행됩니다:
+- Fine-tuning은 from scratch 대비 훨씬 적은 비용으로 가능
+- From scratch 비용을 받고 fine-tuning만 했다면 예산 낭비 또는 사기 논란 가능
+- 납세자에 대한 책임과 투명성 문제
+
+**3. 신뢰도와 평판**
+
+기술 기업의 핵심 자산은 신뢰입니다:
+- "From scratch"라고 주장했는데 실제로는 fine-tuning이었다면 심각한 신뢰 손상
+- 국제 AI 커뮤니티에서의 한국 AI 기술력 평판에 영향
+- 후속 프로젝트 및 투자 유치에 부정적 영향
+
+### From scratch vs Fine-tuning 비용 차이
+
+| 항목 | From scratch | Fine-tuning |
+|------|-------------|-------------|
+| **학습 토큰** | 수조~수십조 | 수십억~수백억 |
+| **GPU 시간** | 수만~수십만 GPU-hours | 수백~수천 GPU-hours |
+| **비용** | 수백억~수천억 원 | 수억~수십억 원 |
+| **기간** | 수개월~1년 이상 | 수일~수주 |
+
+이러한 비용 차이로 인해, from scratch 주장이 거짓이라면 그것은 단순한 기술적 오류가 아닌 **예산 집행의 투명성 문제**가 됩니다.
+
+---
+
 ## Q1: LLM이 "from scratch"로 학습되었는지 어떻게 검증할 수 있나요?
 
 **질문 시각**: 2026-01-04
@@ -810,11 +861,87 @@ Solar-Open-100B의 knowledge cutoff가 공식적으로 공개되지 않아 직�
 - 고석현 CEO 부분 사과
 
 **주의 요소:**
-- LayerNorm 96.8% 유사도는 여전히 설명 필요
+- ~~LayerNorm 96.8% 유사도는 여전히 설명 필요~~ → **독립 검증으로 해소** (아래 참조)
 - GLM-4.5-Air와의 상세 architecture 비교 불가 (config 미공개)
-- 독립적 제3자 검증 결과 미공개
 
-**결론: 행동 분석만으로는 확정적 판단 어려움. 그러나 Tokenizer와 Architecture 분석에서 확인된 고유성을 고려하면, From scratch 주장은 일정 수준 신뢰할 수 있음.**
+### LayerNorm 유사도 의혹 독립 검증 (2026-01-05 추가)
+
+[hyunwoongko의 검증](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)에서 LayerNorm 96.8% 유사도 주장이 **방법론적 오류**였음이 밝혀졌습니다:
+
+| 발견 | 설명 |
+|------|------|
+| **동일 모델 내 유사도** | 같은 모델의 다른 레이어 간에도 0.99 수준 cosine similarity |
+| **초기화 특성** | LayerNorm weight가 1.0으로 초기화되어 방향적 일관성 유지 |
+| **Centered cosine 분석** | 평균 오프셋 제거 시 모델 간 유사도가 **거의 0으로 하락** |
+| **Phi-3.5-MoE 비교** | Solar가 GLM보다 Phi에 더 가깝다는 증거도 없음 |
+
+**결론: LayerNorm 비교는 모델 기원 판별에 부적합. 원래 주장은 초기화 편향에 의한 false positive.**
+
+**최종 결론: 행동 분석과 독립 검증을 종합하면, From scratch 주장은 신뢰할 수 있음.**
+
+---
+
+## Q9: HyperCLOVAX-SEED-Think-32B는 from scratch인가요?
+
+**질문 시각**: 2026-01-05
+
+**답변**:
+
+NAVER Cloud의 HyperCLOVAX-SEED-Think-32B를 분석한 결과, **부분적 from scratch + 컴포넌트 재사용 혼합** 구조로 확인되었습니다.
+
+### 모델 구조
+
+HyperCLOVAX-SEED-Think-32B는 **VLM(Vision-Language Model)**으로 세 가지 컴포넌트로 구성됩니다:
+
+| 컴포넌트 | 모델 타입 | From scratch 여부 |
+|----------|----------|-------------------|
+| **Vision Encoder** | Qwen2.5 ViT | ❌ 재사용 |
+| **Text Decoder** | HyperCLOVAX | ⚠️ 추가 검증 필요 |
+| **Projector** | Linear | - |
+
+### 주요 발견
+
+**1. Vision Encoder - Qwen2.5 ViT 재사용**
+
+config.json에 `"model_type": "qwen2_5_vl"` 명시. Vision 부분은 from scratch가 아닙니다.
+
+**2. Tokenizer - Llama 3와 vocab_size 일치**
+
+| 모델 | vocab_size |
+|------|-----------|
+| HyperCLOVAX-SEED | 128,256 |
+| Llama 3 | 128,256 |
+| HyperCLOVA X (논문) | 100,000 |
+
+"SEED" 버전은 원래 HyperCLOVA X(100k vocab)와 다른 tokenizer를 사용합니다.
+
+**3. Text Decoder Architecture - 고유 요소 존재**
+
+| 파라미터 | HyperCLOVAX-SEED | Llama 3.1 70B | Qwen2.5-72B |
+|----------|------------------|---------------|-------------|
+| model_type | hyperclovax | llama | qwen2 |
+| hidden_size | 5,120 | ~8,192 | 12,288 |
+| num_layers | 72 | 80 | 80 |
+| num_heads | 40 | 64 | 128 |
+| rope_theta | 50,000,000 | 500,000 | 1,000,000 |
+
+`rope_theta: 50M`은 다른 모델에서 볼 수 없는 고유값입니다.
+
+### 판정
+
+| 컴포넌트 | 결과 | 근거 |
+|----------|------|------|
+| Vision Encoder | ❌ From scratch 아님 | Qwen2.5 ViT 명시적 사용 |
+| Tokenizer | ⚠️ 의문점 | vocab_size가 Llama 3와 동일 |
+| Text Decoder | ⚠️ 조건부 지지 | Architecture는 고유하나 추가 검증 필요 |
+
+### 결론
+
+**완전한 from scratch라고 보기 어려움**
+
+Vision Encoder가 Qwen2.5 ViT를 그대로 사용한다는 점이 config.json에 명시되어 있습니다. 이는 VLM에서 Vision 부분은 재사용했음을 의미합니다. Text Decoder(LLM 본체)는 고유한 architecture를 가지고 있으나, tokenizer의 vocab_size가 Llama 3와 정확히 일치하여 추가 검증이 필요합니다.
+
+상세 분석: [docs/05-hyperclovax-analysis.md](05-hyperclovax-analysis.md)
 
 ---
 
