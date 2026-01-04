@@ -941,7 +941,7 @@ config.json에 `"model_type": "qwen2_5_vl"` 명시. Vision 부분은 from scratc
 
 Vision Encoder가 Qwen2.5 ViT를 그대로 사용한다는 점이 config.json에 명시되어 있습니다. 이는 VLM에서 Vision 부분은 재사용했음을 의미합니다. Text Decoder(LLM 본체)는 고유한 architecture를 가지고 있으나, tokenizer의 vocab_size가 Llama 3와 정확히 일치하여 추가 검증이 필요합니다.
 
-상세 분석: [docs/05-hyperclovax-analysis.md](05-hyperclovax-analysis.md)
+상세 분석: 각 분석 문서(01-04)의 "모델별 검증 결과" 섹션 참조
 
 ---
 

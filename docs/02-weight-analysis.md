@@ -21,6 +21,134 @@ Weight 분석은 모델의 가중치를 직접 비교하여 from scratch 학습 
 - From scratch: orthogonal 분포
 - Fine-tuned: base model 근처 clustering
 
+## 해석 기준
+
+### Cosine Similarity 기준
+
+| 평균 유사도 | 해석 |
+|-------------|------|
+| **>0.95** | 거의 확실히 fine-tuning |
+| **0.8-0.95** | Fine-tuning 또는 continued pre-training |
+| **0.5-0.8** | 부분적 weight 재사용 가능성 |
+| **<0.5** | From scratch 가능성 높음 |
+
+### Layer별 패턴
+
+| 패턴 | 의미 |
+|------|------|
+| 초기 layer 높은 유사도, 후기 layer 낮음 | 전형적인 fine-tuning |
+| 전체적으로 낮은 유사도 | From scratch 증거 |
+| 일부 layer만 높은 유사도 | 부분적 weight 초기화 |
+
+---
+
+## 모델별 검증 결과
+
+### 1. Upstage Solar-Open-100B ✅
+
+**검증일**: 2026-01-04
+
+#### Architecture 비교를 통한 Weight 비교 가능성 분석
+
+Weight 비교는 동일한 shape의 tensor 간에만 의미가 있습니다.
+
+| 파라미터 | Solar-Open-100B | Mixtral-8x7B | DeepSeek-V2 | Qwen2-57B |
+|----------|-----------------|--------------|-------------|-----------|
+| **hidden_size** | 4,096 | 4,096 | 5,120 | 3,584 |
+| **num_hidden_layers** | 48 | 32 | 60 | 28 |
+| **num_attention_heads** | 64 | 32 | 128 | 28 |
+| **n_routed_experts** | 128 | 8 | 160 | 64 |
+| **vocab_size** | 196,608 | 32,000 | 102,400 | 151,936 |
+
+#### 판정
+
+| 비교 대상 | Weight 비교 가능? | 이유 |
+|-----------|------------------|------|
+| Mixtral-8x7B | ❌ 불가 | layers, heads, experts 모두 다름 |
+| DeepSeek-V2 | ❌ 불가 | hidden_size부터 다름 |
+| Qwen2-57B | ❌ 불가 | 모든 dimension 다름 |
+
+#### 결론
+
+**Weight 비교 불가 → From scratch 증거**
+
+Fine-tuning된 모델이라면 base model과 동일한 architecture를 가져야 합니다.
+Solar-Open-100B는 어떤 기존 모델과도 architecture가 일치하지 않으므로,
+**직접적인 weight 비교 없이도 from scratch 학습임을 강력히 시사**합니다.
+
+---
+
+### 2. NAVER Cloud HyperCLOVAX-SEED-Think-32B ⚠️
+
+**검증일**: 2026-01-05
+
+#### 컴포넌트별 Weight 비교 가능성
+
+HyperCLOVAX-SEED는 VLM으로, 세 가지 컴포넌트로 구성됩니다:
+
+| 컴포넌트 | 비교 대상 | Weight 비교 가능? |
+|----------|----------|------------------|
+| **Vision Encoder** | Qwen2.5 ViT | ✅ 가능 (동일 model_type 명시) |
+| **Text Decoder** | Llama 3.1 70B | ⚠️ 부분 가능 (hidden_size 다름) |
+| **Projector** | - | 새로 학습된 부분 |
+
+#### Text Decoder Architecture 비교
+
+| 파라미터 | HyperCLOVAX-SEED | Llama 3.1 70B | Qwen2.5-72B |
+|----------|------------------|---------------|-------------|
+| **hidden_size** | 5,120 | ~8,192 | 12,288 |
+| **num_layers** | 72 | 80 | 80 |
+| **num_heads** | 40 | 64 | 128 |
+| **vocab_size** | 128,256 | 128,256 | ~152,000 |
+
+#### 판정
+
+| 컴포넌트 | 결과 | 해석 |
+|----------|------|------|
+| Vision Encoder | Qwen2.5 ViT 재사용 명시 | ❌ From scratch 아님 |
+| Text Decoder | Architecture 불일치 | ⚠️ 추가 검증 필요 |
+| Tokenizer | vocab_size 일치 (Llama 3) | ⚠️ 의문점 |
+
+**결론: Vision Encoder는 재사용 확인, Text Decoder는 추가 검증 필요**
+
+---
+
+### 3. SKT A.X-K1 📋
+
+**검증 상태**: 대기 중
+
+| 항목 | 값 |
+|------|-----|
+| **모델 유형** | MoE |
+| **총 파라미터** | 519B |
+| **Weight 비교** | 미수행 |
+
+---
+
+### 4. NC AI VAETKI 📋
+
+**검증 상태**: 대기 중
+
+| 항목 | 값 |
+|------|-----|
+| **모델 유형** | MoE |
+| **총 파라미터** | 112B |
+| **Weight 비교** | 미수행 |
+
+---
+
+### 5. LG AI 연구원 K-EXAONE 📋
+
+**검증 상태**: 대기 중
+
+| 항목 | 값 |
+|------|-----|
+| **모델 유형** | MoE |
+| **총 파라미터** | 236B |
+| **Weight 비교** | 미수행 |
+
+---
+
 ## 분석 코드
 
 ### 1. Cosine Similarity 계산
@@ -81,137 +209,6 @@ for name in base_weights:
 print(f"\n동일한 layer 수: {len(identical_layers)}")
 ```
 
-### 3. PCA 분석
-
-```python
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-
-def extract_layer_features(weights, layer_prefix="layers"):
-    """특정 layer들의 weight를 feature vector로 변환"""
-    features = []
-    for name, w in weights.items():
-        if layer_prefix in name and "weight" in name:
-            features.append(w.flatten().cpu().numpy()[:1000])  # 첫 1000개 요소
-    return np.array(features)
-
-# 여러 모델 비교
-models = {
-    "base": base_weights,
-    "target": target_weights,
-    # 필요시 더 추가
-}
-
-all_features = []
-labels = []
-for model_name, weights in models.items():
-    feats = extract_layer_features(weights)
-    all_features.extend(feats)
-    labels.extend([model_name] * len(feats))
-
-# PCA 수행
-pca = PCA(n_components=2)
-reduced = pca.fit_transform(np.array(all_features))
-
-# 시각화
-for model_name in models:
-    mask = [l == model_name for l in labels]
-    plt.scatter(reduced[mask, 0], reduced[mask, 1], label=model_name, alpha=0.5)
-plt.legend()
-plt.title("Weight Distribution (PCA)")
-plt.savefig("weight_pca.png")
-```
-
-## Embedding Layer 분석
-
-Embedding layer는 tokenizer와 밀접하게 연관되어 있어 특히 중요합니다.
-
-```python
-def compare_embeddings(base_model, target_model):
-    """Embedding layer 상세 비교"""
-    base_emb = base_model.get_input_embeddings().weight.data
-    target_emb = target_model.get_input_embeddings().weight.data
-
-    print(f"Base embedding shape: {base_emb.shape}")
-    print(f"Target embedding shape: {target_emb.shape}")
-
-    # Shape이 다르면 vocabulary가 다름 → from scratch 증거
-    if base_emb.shape != target_emb.shape:
-        print("Embedding shape 불일치 - 다른 vocabulary 사용")
-        return
-
-    # Cosine similarity
-    sim = cosine_sim(base_emb, target_emb)
-    print(f"Embedding 유사도: {sim:.4f}")
-
-    # 개별 토큰 embedding 비교
-    sample_indices = [0, 100, 1000, 10000]
-    for idx in sample_indices:
-        if idx < base_emb.shape[0]:
-            token_sim = cosine_sim(base_emb[idx], target_emb[idx])
-            print(f"Token {idx} 유사도: {token_sim:.4f}")
-```
-
-## 해석 기준
-
-### Cosine Similarity 기준
-
-| 평균 유사도 | 해석 |
-|-------------|------|
-| **>0.95** | 거의 확실히 fine-tuning |
-| **0.8-0.95** | Fine-tuning 또는 continued pre-training |
-| **0.5-0.8** | 부분적 weight 재사용 가능성 |
-| **<0.5** | From scratch 가능성 높음 |
-
-### Layer별 패턴
-
-| 패턴 | 의미 |
-|------|------|
-| 초기 layer 높은 유사도, 후기 layer 낮음 | 전형적인 fine-tuning |
-| 전체적으로 낮은 유사도 | From scratch 증거 |
-| 일부 layer만 높은 유사도 | 부분적 weight 초기화 |
-
-## 검증 체크리스트
-
-- [x] Solar-Open-100B architecture 분석
-- [x] 비교 대상 모델 architecture 수집
-- [x] Weight 비교 가능성 판단
-- [ ] ~~Llama-3와 layer별 cosine similarity 계산~~ (architecture 불일치로 불가)
-- [ ] ~~Mixtral과 MoE layer 비교~~ (architecture 불일치로 불가)
-- [ ] ~~Embedding layer 상세 분석~~ (vocab_size 불일치로 불가)
-
----
-
-## 검증 결과 (2026-01-04)
-
-### Architecture 비교를 통한 Weight 비교 가능성 분석
-
-Weight 비교는 동일한 shape의 tensor 간에만 의미가 있습니다.
-
-| 파라미터 | Solar-Open-100B | Mixtral-8x7B | DeepSeek-V2 | Qwen2-57B |
-|----------|-----------------|--------------|-------------|-----------|
-| **hidden_size** | 4,096 | 4,096 | 5,120 | 3,584 |
-| **num_hidden_layers** | 48 | 32 | 60 | 28 |
-| **num_attention_heads** | 64 | 32 | 128 | 28 |
-| **n_routed_experts** | 128 | 8 | 160 | 64 |
-| **vocab_size** | 196,608 | 32,000 | 102,400 | 151,936 |
-
-### 판정
-
-| 비교 대상 | Weight 비교 가능? | 이유 |
-|-----------|------------------|------|
-| Mixtral-8x7B | ❌ 불가 | layers, heads, experts 모두 다름 |
-| DeepSeek-V2 | ❌ 불가 | hidden_size부터 다름 |
-| Qwen2-57B | ❌ 불가 | 모든 dimension 다름 |
-
-### 결론
-
-**Weight 비교 불가 → From scratch 증거**
-
-Fine-tuning된 모델이라면 base model과 동일한 architecture를 가져야 합니다.
-Solar-Open-100B는 어떤 기존 모델과도 architecture가 일치하지 않으므로,
-**직접적인 weight 비교 없이도 from scratch 학습임을 강력히 시사**합니다.
-
 ---
 
 ## 주의사항
@@ -219,6 +216,8 @@ Solar-Open-100B는 어떤 기존 모델과도 architecture가 일치하지 않�
 1. **메모리 요구사항**: 100B 모델 비교는 상당한 GPU/CPU 메모리 필요
 2. **MoE 구조 고려**: Expert weight는 별도 분석 필요
 3. **Quantization 영향**: 양자화된 모델은 해시 비교 불가
+
+---
 
 ## 결론 도출 기준
 

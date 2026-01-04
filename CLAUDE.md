@@ -4,13 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 프로젝트 개요
 
-Upstage의 Solar-Open-100B 모델이 "from scratch"로 학습되었는지 검증하는 프로젝트입니다.
-검증 과정의 모든 Q&A는 `docs/00-tutorial.md`에 기록됩니다.
+**국가 AI 파운데이션 모델 "From Scratch" 검증 프로젝트**
 
-**검증 대상**: [upstage/Solar-Open-100B](https://huggingface.co/upstage/Solar-Open-100B)
-- 공식 주장: "Trained Entirely from Scratch"
-- 아키텍처: MoE (102.6B total, 12B active, 129 experts)
-- 학습 토큰: 19.7T tokens
+한국 정부의 국가 AI 파운데이션 모델 프로젝트에 참여한 5개 기관의 공개 모델이 실제로 "from scratch"로 학습되었는지 검증합니다.
+
+| 모델 | 상태 | 판정 |
+|------|------|------|
+| Upstage Solar-Open-100B | ✅ 완료 | From scratch 신뢰 |
+| NAVER HyperCLOVAX-SEED-Think-32B | ⚠️ 진행중 | 부분적 재사용 |
+| SKT A.X-K1 | 📋 대기 | - |
+| NC AI VAETKI | 📋 대기 | - |
+| LG AI K-EXAONE | 📋 대기 | - |
 
 ## 사용 가능한 커맨드
 
@@ -54,34 +58,38 @@ Upstage의 Solar-Open-100B 모델이 "from scratch"로 학습되었는지 검증
 ---
 ```
 
-## 튜토리얼에 기록할 주제
+## 검증 방법론
 
-1. LLM 학습 검증 방법론 (from scratch vs fine-tuning)
-2. Tokenizer 분석 (vocabulary, BPE merge, special tokens)
-3. Weight 분석 (cosine similarity, 해싱, PCA)
-4. Architecture 분석 (config 비교, MoE 구조)
-5. Solar-Open-100B 검증 결과
+4가지 분석 방법으로 from scratch 여부를 판별:
 
-## 검증 진행 상황
+1. **Tokenizer 분석** (docs/01-tokenizer-analysis.md)
+   - Vocabulary 비교, BPE merge rules, special tokens 패턴
 
-- [x] **Tokenizer 분석** → From scratch 지지
-  - Solar vocab_size: 196,608 (모든 비교 대상과 불일치)
-- [ ] Architecture 분석
-- [ ] Weight 분석 (compute 리소스 필요)
-- [ ] 행동 분석
+2. **Weight 분석** (docs/02-weight-analysis.md)
+   - Cosine similarity, tensor 해시 비교, PCA 분포
+
+3. **Architecture 분석** (docs/03-architecture-analysis.md)
+   - config.json 비교, MoE 구조, RoPE/Attention 설정
+
+4. **행동 분석** (docs/04-behavior-analysis.md)
+   - Knowledge cutoff, refusal pattern, safety alignment
+
+각 분석 문서에는 **"모델별 검증 결과"** 섹션이 있어 5개 모델의 분석 결과를 기록합니다.
 
 ## 주요 파일
 
 | 파일 | 역할 |
 |------|------|
 | `docs/00-tutorial.md` | Q&A 튜토리얼 (자동 업데이트 대상) |
-| `docs/01-tokenizer-analysis.md` | Tokenizer 분석 상세 + 결과 |
-| `docs/02-weight-analysis.md` | Weight 분석 상세 |
-| `docs/03-architecture-analysis.md` | Architecture 분석 상세 |
-| `docs/04-behavior-analysis.md` | 행동 분석 상세 |
+| `docs/01-tokenizer-analysis.md` | Tokenizer 분석 방법론 + 모델별 결과 |
+| `docs/02-weight-analysis.md` | Weight 분석 방법론 + 모델별 결과 |
+| `docs/03-architecture-analysis.md` | Architecture 분석 방법론 + 모델별 결과 |
+| `docs/04-behavior-analysis.md` | 행동 분석 방법론 + 모델별 결과 |
 | `.claude/skills/update-tutorial.md` | 튜토리얼 업데이트 skill |
 | `.claude/commands/*.md` | 커스텀 커맨드 정의 |
 
 ## 검증 작업 시 참고
 
-검증 작업 수행 후 README.md의 "검증 진행 상황" 체크리스트도 함께 업데이트할 것.
+- 새 모델 검증 시: 각 분석 문서(01-04)의 "모델별 검증 결과" 섹션에 추가
+- 분석 완료 후: README.md의 검증 대상 모델 테이블 상태 업데이트
+- Q&A 발생 시: docs/00-tutorial.md에 자동 기록

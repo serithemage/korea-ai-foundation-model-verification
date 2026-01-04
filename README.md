@@ -18,22 +18,141 @@
 2. **실습**: 실제 공개 모델에 검증 기법 적용
 3. **문서화**: 학습 과정을 Q&A 튜토리얼로 기록
 
-### 검증 대상 모델
-
-하는김에 **국가 AI 파운데이션 모델 프로젝트**에 참여한 5개 기관의 공개 모델을 모두 검증 대상에 포함시켰습니다.
-어디까지나 비 전문가가 LLM(클로드, 퍼플렉시티)에 의존하여 진행한 것이니 결과에 대해서는 책임을 지지 않습니다. 재미로 봐 주시고 전문가 분이 이슈에 의견 주시면 검증에 반영하도록 하겠습니다.
-
-| 기관 | 모델명 | 파라미터 | 유형 | HuggingFace | 검증 상태 |
-|------|--------|----------|------|-------------|-----------|
-| **NAVER Cloud** | HyperCLOVAX-SEED-Think | 32B | Dense (VLM) | [링크](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B) | ⚠️ [진행중](docs/05-hyperclovax-analysis.md) |
-| **Upstage** | Solar-Open-100B | 102B | MoE | [링크](https://huggingface.co/upstage/Solar-Open-100B) | ✅ 완료 |
-| **SKT** | A.X-K1 | 519B | MoE | [링크](https://huggingface.co/skt/A.X-K1) | 📋 대기 |
-| **NC AI** | VAETKI | 112B | MoE | [링크](https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI) | 📋 대기 |
-| **LG AI 연구원** | K-EXAONE | 236B | MoE | [링크](https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B) | 📋 대기 |
-
 ### 튜토리얼 안내
 
 [Q&A 튜토리얼](docs/00-tutorial.md)에는 검증 과정에서 학습한 질문과 답변들이 정리되어 있습니다. LLM 검증 방법론에 관심 있는 분들께 참고가 되길 바랍니다.
+
+---
+
+## 검증 대상 모델
+
+**국가 AI 파운데이션 모델 프로젝트**에 참여한 5개 기관의 공개 모델을 검증 대상으로 합니다.
+어디까지나 비전문가가 LLM(클로드, 퍼플렉시티)에 의존하여 진행한 것이니 결과에 대해서는 책임을 지지 않습니다. 재미로 봐 주시고 전문가 분이 이슈에 의견 주시면 검증에 반영하도록 하겠습니다.
+
+| 기관 | 모델명 | 파라미터 | 유형 | HuggingFace | 검증 상태 | 판정 |
+|------|--------|----------|------|-------------|-----------|------|
+| **Upstage** | Solar-Open-100B | 102B | MoE | [링크](https://huggingface.co/upstage/Solar-Open-100B) | ✅ 완료 | From scratch 신뢰 |
+| **NAVER Cloud** | HyperCLOVAX-SEED-Think | 32B | Dense (VLM) | [링크](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B) | ⚠️ 진행중 | 부분적 재사용 |
+| **SKT** | A.X-K1 | 519B | MoE | [링크](https://huggingface.co/skt/A.X-K1) | 📋 대기 | - |
+| **NC AI** | VAETKI | 112B | MoE | [링크](https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI) | 📋 대기 | - |
+| **LG AI 연구원** | K-EXAONE | 236B | MoE | [링크](https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B) | 📋 대기 | - |
+
+---
+
+## 종합 검증 결과
+
+### 모델별 분석 요약
+
+#### 1. Upstage Solar-Open-100B ✅
+
+| 분석 방법 | 결과 | From scratch 지지 |
+|----------|------|------------------|
+| **Tokenizer** | vocab_size 196,608 (모든 모델과 불일치) | ✅ 강력 지지 |
+| **Architecture** | 48 layers, 129 experts (고유 구성) | ✅ 강력 지지 |
+| **Weight** | Architecture 불일치로 비교 불가 | ✅ 간접 지지 |
+| **행동** | 공개 검증 세션에서 training logs 제시 | ⚠️ 조건부 지지 |
+
+**판정: From scratch 신뢰 가능**
+
+상세 분석:
+- [Tokenizer 분석](docs/01-tokenizer-analysis.md)
+- [Architecture 분석](docs/03-architecture-analysis.md)
+- [Weight 분석](docs/02-weight-analysis.md)
+- [행동 분석](docs/04-behavior-analysis.md)
+
+---
+
+#### 2. NAVER Cloud HyperCLOVAX-SEED-Think-32B ⚠️
+
+| 컴포넌트 | 결과 | From scratch 여부 |
+|----------|------|-------------------|
+| **Vision Encoder** | Qwen2.5 ViT 사용 (config에 명시) | ❌ 재사용 |
+| **Text Decoder** | 고유 architecture (rope_theta 50M) | ⚠️ 추가 검증 필요 |
+| **Tokenizer** | vocab_size 128,256 = Llama 3 동일 | ⚠️ 의문점 |
+
+**판정: 부분적 재사용 (Vision Encoder는 from scratch 아님)**
+
+상세 분석: 각 분석 문서의 "모델별 검증 결과" 섹션 참조
+
+---
+
+#### 3. SKT A.X-K1 📋
+
+| 항목 | 값 |
+|------|-----|
+| **모델 유형** | MoE |
+| **총 파라미터** | 519B |
+| **검증 상태** | 대기 중 |
+
+---
+
+#### 4. NC AI VAETKI 📋
+
+| 항목 | 값 |
+|------|-----|
+| **모델 유형** | MoE |
+| **총 파라미터** | 112B |
+| **검증 상태** | 대기 중 |
+
+---
+
+#### 5. LG AI 연구원 K-EXAONE 📋
+
+| 항목 | 값 |
+|------|-----|
+| **모델 유형** | MoE |
+| **총 파라미터** | 236B |
+| **검증 상태** | 대기 중 |
+
+---
+
+## 검증 방법론
+
+LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방법들:
+
+| # | 방법 | 신뢰도 | 접근성 | 탐지력 | 상세 문서 |
+|---|------|--------|--------|--------|----------|
+| 1 | Tokenizer 분석 | 높음 | 높음 | 우수 | [상세 보기](docs/01-tokenizer-analysis.md) |
+| 2 | Weight 분석 | 높음 | 중간 | 양호 | [상세 보기](docs/02-weight-analysis.md) |
+| 3 | Architecture 분석 | 중간 | 높음 | 양호 | [상세 보기](docs/03-architecture-analysis.md) |
+| 4 | 행동 분석 | 중간 | 높음 | 보통 | [상세 보기](docs/04-behavior-analysis.md) |
+| 5 | Training Logs 검증 | 매우 높음 | 낮음 | 우수 | (접근 불가) |
+
+### 방법론 요약
+
+**1. [Tokenizer 분석](docs/01-tokenizer-analysis.md)**
+- Vocabulary 비교, BPE merge rules 분석, 특수 토큰 패턴 비교
+
+**2. [Weight 분석](docs/02-weight-analysis.md)**
+- Layer별 cosine similarity, Weight tensor 해시 비교, PCA 분포 분석
+
+**3. [Architecture 분석](docs/03-architecture-analysis.md)**
+- config.json 비교, MoE 구조 분석, RoPE/Attention 설정 비교
+
+**4. [행동 분석](docs/04-behavior-analysis.md)**
+- Knowledge cutoff 테스트, Refusal pattern 분석, Safety alignment 특성
+
+**5. Training Logs 검증** (접근 불가)
+- Loss curve 패턴 분석, Compute 추정 (Chinchilla scaling 기준)
+
+---
+
+## 주요 발견 사항
+
+### LayerNorm 유사도 의혹 검증 (Solar-Open-100B)
+
+[hyunwoongko의 독립 검증](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)에서 LayerNorm 96.8% 유사도 주장이 **방법론적 오류**였음이 밝혀졌습니다:
+
+| 발견 | 설명 |
+|------|------|
+| **동일 모델 내 유사도** | 같은 모델의 다른 레이어 간에도 0.99 수준의 높은 cosine similarity |
+| **초기화 특성** | LayerNorm weight가 1.0으로 초기화되어 방향적 일관성 유지 |
+| **Centered cosine 분석** | 평균 오프셋 제거 시 **모델 간 유사도가 거의 0으로 하락** |
+| **결론** | 원래 주장된 높은 유사도는 초기화 편향의 결과, 실제 파라미터 정렬 아님 |
+
+### Vision Encoder 재사용 확인 (HyperCLOVAX)
+
+HyperCLOVAX-SEED-Think-32B의 config.json에서 Vision Encoder가 **Qwen2.5 ViT**를 사용함이 명시적으로 확인되었습니다. VLM 모델의 경우 Vision 컴포넌트 재사용은 일반적인 관행이나, "from scratch" 주장 시 명확한 범위 정의가 필요합니다.
 
 ---
 
@@ -72,49 +191,6 @@ flowchart TB
     SKILL -.->|skill 정의| U
 ```
 
-### 프로세스 상세
-
-```mermaid
-sequenceDiagram
-    participant U as 사용자
-    participant C as Claude Code
-    participant P as Perplexity MCP
-    participant F as docs/00-tutorial.md
-
-    U->>C: 검증 관련 질문
-    C->>C: 질문 유형 판별
-
-    alt 조사가 필요한 질문
-        C->>P: 영문 쿼리로 조사 요청
-        P-->>C: 조사 결과 반환
-        C->>C: 결과를 Q&A 형식으로 정리
-    end
-
-    C->>F: TUTORIAL_MARKER 위치에 Q&A 추가
-    C-->>U: 답변 제공
-
-    Note over F: Q 번호 자동 증가<br/>날짜 자동 기록
-```
-
-### 튜토리얼 업데이트 규칙
-
-| 조건 | 동작 |
-|------|------|
-| 사용자 입력이 **질문**인 경우 | Perplexity MCP로 조사 → Q&A 형식으로 튜토리얼에 추가 |
-| 사용자 입력이 **명령**인 경우 | 명령 실행 (튜토리얼 업데이트 없음) |
-| `/update-tutorial` 실행 | 현재 세션의 Q&A를 수동으로 튜토리얼에 추가 |
-
-### 자동 업데이트 대상 질문 유형
-
-다음 주제에 대한 질문은 자동으로 튜토리얼에 기록됩니다:
-
-1. **LLM 학습 검증 방법론** - from scratch vs fine-tuning 판별
-2. **Tokenizer 분석** - vocabulary, BPE merge, special tokens
-3. **Weight 분석** - cosine similarity, 해싱, PCA
-4. **Architecture 분석** - config 비교, 구조적 특징
-5. **MoE 모델 지식** - Mixture-of-Experts 아키텍처
-6. **Solar-Open-100B 구체적 분석** - 실제 검증 결과
-
 ### 파일 구조
 
 ```
@@ -144,127 +220,6 @@ solar-open-100b-scratch-verification/
 | `/save` | 빠른 커밋 & 푸시 | `/save` 또는 `/save {메시지}` |
 | `/update-tutorial` | Q&A 튜토리얼 수동 업데이트 | `/update-tutorial` |
 
-### Q&A 형식
-
-새로운 Q&A는 다음 형식으로 `docs/00-tutorial.md`의 `<!-- TUTORIAL_MARKER -->` 위에 자동 추가됩니다:
-
-```markdown
----
-
-## Q{N}: {질문 제목}
-
-**질문 시각**: {YYYY-MM-DD}
-
-**답변**:
-
-{Perplexity MCP 조사 기반 구조화된 답변}
-
----
-```
-
----
-
-## Solar-Open-100B 공식 정보 (검증 진행 중)
-
-| 항목 | 값 |
-|------|-----|
-| **모델 유형** | Mixture-of-Experts (MoE) |
-| **총 파라미터** | 102.6B |
-| **활성 파라미터** | 12B (토큰당) |
-| **Expert 구성** | 129개 (128 routed + 1 shared, top-8 활성화) |
-| **Context Length** | 128k tokens |
-| **학습 토큰 수** | 19.7 trillion tokens |
-| **학습 하드웨어** | NVIDIA B200 GPUs |
-| **라이선스** | Solar-Apache License 2.0 |
-
-**공식 주장**: "Trained Entirely from Scratch" (Hugging Face 모델 카드에 명시)
-
----
-
-## 검증 방법론
-
-LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방법들:
-
-| # | 방법 | 신뢰도 | 접근성 | 탐지력 | 상세 문서 |
-|---|------|--------|--------|--------|----------|
-| 1 | Tokenizer 분석 | 높음 | 높음 | 우수 | [상세 보기](docs/01-tokenizer-analysis.md) |
-| 2 | Weight 분석 | 높음 | 중간 | 양호 | [상세 보기](docs/02-weight-analysis.md) |
-| 3 | Architecture 분석 | 중간 | 높음 | 양호 | [상세 보기](docs/03-architecture-analysis.md) |
-| 4 | 행동 분석 | 중간 | 높음 | 보통 | [상세 보기](docs/04-behavior-analysis.md) |
-| 5 | Training Logs 검증 | 매우 높음 | 낮음 | 우수 | (접근 불가) |
-
-### 방법론 요약
-
-**1. [Tokenizer 분석](docs/01-tokenizer-analysis.md)**
-- Vocabulary 비교, BPE merge rules 분석, 특수 토큰 패턴 비교
-
-**2. [Weight 분석](docs/02-weight-analysis.md)**
-- Layer별 cosine similarity, Weight tensor 해시 비교, PCA 분포 분석
-
-**3. [Architecture 분석](docs/03-architecture-analysis.md)**
-- config.json 비교, MoE 구조 분석, RoPE/Attention 설정 비교
-
-**4. [행동 분석](docs/04-behavior-analysis.md)**
-- Knowledge cutoff 테스트, Refusal pattern 분석, Safety alignment 특성
-
-**5. Training Logs 검증** (접근 불가)
-- Loss curve 패턴 분석, Compute 추정 (Chinchilla scaling 기준)
-
----
-
-## 검증 진행 상황
-
-- [x] Tokenizer 분석 ✅ **완료 (2026-01-04)** → **From scratch 지지**
-  - [x] Solar-Open-100B tokenizer vocabulary 추출 (196,608 tokens)
-  - [x] Llama, Mistral, Qwen 등 주요 base model과 비교
-  - [x] 토큰 중복률 계산 (vocab size 차이로 인해 직접 비교 불필요)
-- [x] Architecture 분석 ✅ **완료 (2026-01-04)** → **From scratch 지지**
-  - [x] config.json 분석 (48 layers, 128+1 experts, 196k vocab)
-  - [x] 유사 MoE 모델들과 비교 (Mixtral, DeepSeek-V2, Qwen2-MoE)
-  - [x] 결과: 어떤 기존 모델과도 architecture 불일치
-- [x] Weight 분석 ✅ **완료 (2026-01-04)** → **비교 불가 (From scratch 증거)**
-  - [x] Architecture 불일치로 직접 weight 비교 불가능
-  - [x] 이 자체가 from scratch의 강력한 증거
-- [x] 행동 분석 ✅ **완료 (2026-01-04)** → **제한적 (정보 부족)**
-  - [x] Knowledge cutoff 미공개로 직접 테스트 불가
-  - [x] 표절 논란 발생 (2026-01-01): GLM-4.5-Air와 LayerNorm 96.8% 유사도 주장
-  - [x] Upstage 공개 검증 (2026-01-02): Training logs, checkpoints 공개
-  - [x] 결론: 행동 분석만으로는 확정 불가, 종합적으로 From scratch 지지
-
----
-
-## 종합 검증 결론
-
-### 분석 결과 요약
-
-| 분석 방법 | 결과 | 신뢰도 | From scratch 지지 |
-|----------|------|--------|------------------|
-| **Tokenizer** | vocab_size 196,608 (모든 모델과 불일치) | 높음 | ✅ 강력 지지 |
-| **Architecture** | 48 layers, 129 experts (모든 모델과 불일치) | 높음 | ✅ 강력 지지 |
-| **Weight** | Architecture 불일치로 비교 불가 | 높음 | ✅ 간접 지지 |
-| **행동** | Knowledge cutoff 미공개, 표절 논란 → 공개 검증 | 중간 | ⚠️ 조건부 지지 |
-
-### 최종 판정
-
-**From scratch 학습 주장: 신뢰 가능 (조건부)**
-
-**지지 근거:**
-1. Tokenizer vocabulary가 모든 비교 대상과 완전히 다름 (196,608)
-2. Architecture가 어떤 기존 MoE 모델과도 일치하지 않음
-3. 고유한 Expert 구성 (128 routed + 1 shared)
-4. Upstage의 공개 검증 세션에서 training logs, checkpoints 제시
-
-### LayerNorm 유사도 의혹 검증 결과
-
-[hyunwoongko의 독립 검증](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)에서 LayerNorm 96.8% 유사도 주장이 **방법론적 오류**였음이 밝혀졌습니다:
-
-| 발견 | 설명 |
-|------|------|
-| **동일 모델 내 유사도** | 같은 모델의 다른 레이어 간에도 0.99 수준의 높은 cosine similarity |
-| **초기화 특성** | LayerNorm weight가 1.0으로 초기화되어 방향적 일관성 유지 |
-| **Centered cosine 분석** | 평균 오프셋 제거 시 **모델 간 유사도가 거의 0으로 하락** |
-| **결론** | 원래 주장된 높은 유사도는 초기화 편향의 결과, 실제 파라미터 정렬 아님 |
-
 ---
 
 ## 참고 자료
@@ -272,6 +227,9 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
 ### 검증 대상 모델
 - [Hugging Face - Solar-Open-100B](https://huggingface.co/upstage/Solar-Open-100B)
 - [Hugging Face - HyperCLOVAX-SEED-Think-32B](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B)
+- [Hugging Face - A.X-K1](https://huggingface.co/skt/A.X-K1)
+- [Hugging Face - VAETKI](https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI)
+- [Hugging Face - K-EXAONE](https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B)
 
 ### 독립 검증 및 논문
 - [LayerNorm 유사도 독립 검증 (hyunwoongko)](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)

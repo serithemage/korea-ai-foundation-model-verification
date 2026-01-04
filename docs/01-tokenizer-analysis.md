@@ -42,6 +42,109 @@ Tokenizer 분석은 LLM이 from scratch로 학습되었는지 판별하는 가�
 | **90-98%** | Continued pre-training 또는 vocabulary 확장 |
 | **<90%** | From scratch 학습 강력 증거 |
 
+---
+
+## 모델별 검증 결과
+
+### 1. Upstage Solar-Open-100B ✅
+
+**검증일**: 2026-01-04
+
+#### Vocabulary 크기 비교
+
+| 모델 | Vocab Size | Tokenizer Type | Solar 대비 |
+|------|-----------|----------------|------------|
+| **Solar-Open-100B** | **196,608** | SentencePiece (BPE) | - |
+| Qwen2-72B | 152,064 | BPE | -23% |
+| Llama-3 | 128,256 | tiktoken (BPE) | -35% |
+| DeepSeek-V2 | 102,400 | BPE | -48% |
+| Mixtral-8x7B | 32,000 | SentencePiece | -84% |
+
+#### Special Tokens 비교
+
+| 모델 | bos_token | eos_token | pad_token |
+|------|-----------|-----------|-----------|
+| **Solar-Open-100B** | `<s>` | `</s>` | `<pad>` |
+| Llama-3 | `<\|begin_of_text\|>` | `<\|end_of_text\|>` | (없음) |
+| Mixtral | `<s>` | `</s>` | (없음) |
+
+#### 판정
+
+| 지표 | 결과 | 해석 |
+|------|------|------|
+| Vocab Size 일치 | 0개 모델 | ✅ From scratch 지지 |
+| Special Tokens | Mixtral과 유사 | ⚠️ 중립 |
+| Tokenizer Type | 공통 방식 | ⚠️ 중립 |
+
+**결론: From scratch 학습 주장 지지**
+
+---
+
+### 2. NAVER Cloud HyperCLOVAX-SEED-Think-32B ⚠️
+
+**검증일**: 2026-01-05
+
+#### Vocabulary 크기 비교
+
+| 모델 | Vocab Size | 비고 |
+|------|-----------|------|
+| **HyperCLOVAX-SEED** | **128,256** | Llama 3와 동일 |
+| Llama 3 | 128,256 | 정확히 일치 |
+| HyperCLOVA X (논문) | 100,000 | "SEED" 버전과 다름 |
+
+#### Special Tokens 비교
+
+| 토큰 | 값 | 비고 |
+|------|-----|------|
+| `<\|IMAGE_PAD\|>` | Vision용 | VLM 특화 |
+| `<\|im_start\|>`, `<\|im_end\|>` | Conversation | ChatML 스타일 |
+| `<\|fim_prefix\|>`, `<\|fim_middle\|>`, `<\|fim_suffix\|>` | Code | Fill-in-the-middle |
+
+#### 판정
+
+| 지표 | 결과 | 해석 |
+|------|------|------|
+| **Vocab Size** | Llama 3와 동일 (128,256) | ⚠️ 의문점 |
+| **Special Tokens** | 독자적 구성 | ✅ 지지 |
+| **논문 불일치** | HyperCLOVA X(100k) vs SEED(128k) | ⚠️ 추가 검증 필요 |
+
+**결론: 추가 검증 필요 (vocab_size가 Llama 3와 정확히 일치)**
+
+---
+
+### 3. SKT A.X-K1 📋
+
+**검증 상태**: 대기 중
+
+| 항목 | 값 |
+|------|-----|
+| **예상 Vocab Size** | 미확인 |
+| **Tokenizer Type** | 미확인 |
+
+---
+
+### 4. NC AI VAETKI 📋
+
+**검증 상태**: 대기 중
+
+| 항목 | 값 |
+|------|-----|
+| **예상 Vocab Size** | 미확인 |
+| **Tokenizer Type** | 미확인 |
+
+---
+
+### 5. LG AI 연구원 K-EXAONE 📋
+
+**검증 상태**: 대기 중
+
+| 항목 | 값 |
+|------|-----|
+| **예상 Vocab Size** | 미확인 |
+| **Tokenizer Type** | 미확인 |
+
+---
+
 ## 분석 코드
 
 ### 1. Vocabulary 비교
@@ -88,82 +191,6 @@ print("Target special tokens:", target_tok.special_tokens_map)
 # 추가된 special tokens 확인
 print("Added tokens:", target_tok.added_tokens_encoder)
 ```
-
-### 4. Encoding 결과 비교
-
-```python
-test_texts = [
-    "Hello, world!",
-    "토큰화 테스트입니다.",
-    "def hello_world():\n    print('Hello')",
-    "The quick brown fox jumps over the lazy dog.",
-]
-
-for text in test_texts:
-    base_tokens = base_tok.tokenize(text)
-    target_tokens = target_tok.tokenize(text)
-    print(f"\nText: {text[:30]}...")
-    print(f"Base tokens: {base_tokens[:10]}")
-    print(f"Target tokens: {target_tokens[:10]}")
-    print(f"Match: {base_tokens == target_tokens}")
-```
-
-## Solar-Open-100B 검증 시 비교 대상
-
-| 모델 | 이유 |
-|------|------|
-| **Llama-2, Llama-3** | SentencePiece 기반, 널리 사용되는 base model |
-| **Mistral/Mixtral** | MoE 아키텍처 유사 |
-| **Qwen** | 대규모 한국어 포함 모델 |
-| **DeepSeek-MoE** | MoE 아키텍처 |
-
-## 검증 체크리스트
-
-- [x] Solar-Open-100B tokenizer vocabulary 추출
-- [x] Llama-2/3과 비교
-- [x] Mistral/Mixtral과 비교
-- [x] Qwen과 비교
-- [x] DeepSeek-MoE와 비교
-- [x] 토큰 중복률 계산 및 분석
-- [x] Special tokens 패턴 분석
-
----
-
-## 검증 결과 (2026-01-04)
-
-### Vocabulary 크기 비교
-
-| 모델 | Vocab Size | Tokenizer Type | Solar 대비 |
-|------|-----------|----------------|------------|
-| **Solar-Open-100B** | **196,608** | SentencePiece (BPE) | - |
-| Qwen2-72B | 152,064 | BPE | -23% |
-| Llama-3 | 128,256 | tiktoken (BPE) | -35% |
-| DeepSeek-V2 | 102,400 | BPE | -48% |
-| Mixtral-8x7B | 32,000 | SentencePiece | -84% |
-
-### Special Tokens 비교
-
-| 모델 | bos_token | eos_token | pad_token |
-|------|-----------|-----------|-----------|
-| **Solar-Open-100B** | `<s>` | `</s>` | `<pad>` |
-| Llama-3 | `<\|begin_of_text\|>` | `<\|end_of_text\|>` | (없음) |
-| Mixtral | `<s>` | `</s>` | (없음) |
-
-### 분석 요약
-
-1. **Vocab Size**: Solar-Open-100B (196,608)는 모든 비교 대상보다 큼
-2. **Special Tokens**: 전통적 `<s>`, `</s>` 형식 사용
-3. **Tokenizer Type**: SentencePiece BPE
-
-### 판정
-
-| 지표 | 결과 | 해석 |
-|------|------|------|
-| Vocab Size 일치 | 0개 모델 | ✅ From scratch 지지 |
-| Special Tokens | Mixtral과 유사 | ⚠️ 중립 |
-| Tokenizer Type | 공통 방식 | ⚠️ 중립 |
-
-**결론: From scratch 학습 주장 지지**
 
 ---
 
