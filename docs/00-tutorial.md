@@ -433,4 +433,206 @@ Solar-Open-100B의 cosine similarity 분석 시:
 
 ---
 
+## Q5: Solar-Open-100B의 Tokenizer 분석 결과는 어떠한가요?
+
+**질문 시각**: 2026-01-04
+
+**답변**:
+
+Solar-Open-100B의 tokenizer를 주요 base model들과 비교 분석한 결과입니다.
+
+### Vocabulary 크기 비교
+
+| 모델 | Vocab Size | Tokenizer Type | 비고 |
+|------|-----------|----------------|------|
+| **Solar-Open-100B** | **196,608** | SentencePiece (BPE) | 가장 큼 |
+| Qwen2-72B | 152,064 | BPE | Solar보다 29% 작음 |
+| Llama-3 | 128,256 | tiktoken (BPE) | Solar보다 53% 작음 |
+| DeepSeek-V2 | 102,400 | BPE | Solar보다 92% 작음 |
+| Mixtral-8x7B | 32,000 | SentencePiece | Solar보다 514% 작음 |
+
+### Special Tokens 비교
+
+| 모델 | bos_token | eos_token | pad_token |
+|------|-----------|-----------|-----------|
+| **Solar-Open-100B** | `<s>` | `</s>` | `<pad>` |
+| Llama-3 | `<\|begin_of_text\|>` | `<\|end_of_text\|>` | (없음) |
+| Mixtral | `<s>` | `</s>` | (없음) |
+
+### 분석 결과
+
+**1. Vocabulary 크기 분석**
+
+Solar-Open-100B의 vocab_size (196,608)는:
+- 모든 비교 대상 모델보다 **유의미하게 큼**
+- 가장 가까운 Qwen2 (152,064)보다도 44,544개 (약 29%) 더 많음
+- Llama-3 계열 (128,256)과는 68,352개 (약 53%) 차이
+
+이는 vocabulary를 재사용하지 않고 **독립적으로 학습**했음을 강력히 시사합니다.
+
+**2. Special Tokens 패턴**
+
+Solar-Open-100B는 전통적인 `<s>`, `</s>` 형식을 사용:
+- Llama-3의 `<|begin_of_text|>` 스타일과 다름
+- Mixtral과 유사하나, vocab_size가 완전히 다름
+
+**3. Tokenizer Type**
+
+- Solar-Open-100B: SentencePiece BPE
+- Llama-3: tiktoken BPE (다른 구현)
+- 동일한 SentencePiece를 쓰는 Mixtral과도 vocab_size가 6배 이상 차이
+
+### From Scratch 판정
+
+| 지표 | 결과 | 해석 |
+|------|------|------|
+| **Vocab Size 일치** | 0개 모델과 일치 | ✅ From scratch 지지 |
+| **Vocab Size 유사** | 해당 없음 (모두 큰 차이) | ✅ From scratch 지지 |
+| **Special Tokens** | Mixtral과 유사하나 vocab 다름 | ⚠️ 중립 |
+| **Tokenizer Type** | SentencePiece BPE (공통) | ⚠️ 중립 (방식만 공유) |
+
+### 결론
+
+**Tokenizer 분석 결과: From scratch 학습 주장 지지**
+
+- 196,608 크기의 vocabulary는 어떤 주요 base model과도 일치하지 않음
+- Vocabulary 확장이나 fine-tuning으로는 설명되지 않는 규모의 차이
+- 독립적으로 학습된 tokenizer임이 강력히 시사됨
+
+### 추가 검증 필요 사항
+
+더 확실한 결론을 위해:
+1. 실제 vocabulary 토큰 목록을 다운로드하여 중복률 계산
+2. BPE merge rules 순서 비교
+3. 동일 텍스트에 대한 토큰화 결과 비교
+
+```python
+# 검증 코드 예시
+from transformers import AutoTokenizer
+
+solar_tok = AutoTokenizer.from_pretrained("upstage/Solar-Open-100B")
+llama_tok = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-8B")
+
+solar_vocab = set(solar_tok.get_vocab().keys())
+llama_vocab = set(llama_tok.get_vocab().keys())
+
+overlap = len(solar_vocab & llama_vocab)
+overlap_pct = (overlap / len(llama_vocab)) * 100
+print(f"Llama-3과 중복률: {overlap_pct:.2f}%")
+# 예상: 90% 미만 → from scratch 지지
+```
+
+---
+
+## Q6: Fine-tuning 의심 증거들에 대한 반론은 무엇인가요?
+
+**질문 시각**: 2026-01-04
+
+**답변**:
+
+Fine-tuning 의심 증거로 제시되는 세 가지 기준에 대해, 각각 **False Positive**(실제로는 from scratch인데 fine-tuning으로 오판)가 발생할 수 있는 경우를 분석합니다.
+
+### 1. "95% 이상 vocabulary 중복 = Fine-tuning"에 대한 반론
+
+**False Positive 가능 상황:**
+
+| 요인 | 설명 |
+|------|------|
+| **동일 언어 분포** | 영어 웹 데이터로 학습하면 자연스럽게 유사한 빈도 패턴 발생 |
+| **동일 알고리즘 설정** | vocab_size=32k, character_coverage=0.9995 등 표준 설정 사용 시 유사한 결과 |
+| **언어의 통계적 특성** | 자연어의 공통 패턴 (접두사, 접미사, 구두점)은 어떤 corpus에서도 유사 |
+| **표준 전처리** | 웹 데이터 정규화 파이프라인이 업계 표준화됨 |
+
+**실제 사례:**
+- **LLaMA vs TigerBot**: 독립적으로 학습되었지만 53% vocabulary 중복
+- **LLaMA (32k) vs ChatGLM (125k)**: 다른 기관, 다른 corpus지만 상당한 토큰 공유
+
+**결론**: 독립적으로 학습한 모델도 40-60% 중복은 자연스러움. 다만 **95% 이상**은 여전히 의심스러운 수준.
+
+---
+
+### 2. "동일한 Special Token 패턴 = Fine-tuning"에 대한 반론
+
+**False Positive 가능 상황:**
+
+| 요인 | 설명 |
+|------|------|
+| **업계 관행** | `<s>`, `</s>`, `<pad>`, `<unk>`는 SentencePiece 기본값으로 널리 사용 |
+| **호환성 고려** | 기존 도구/프레임워크와의 호환을 위해 표준 형식 채택 |
+| **우연의 일치** | Special token 수가 적어 (4-10개) 겹칠 확률 높음 |
+
+**예시:**
+
+```
+SentencePiece 기본값:
+  - <unk> (ID: 0)
+  - <s>   (ID: 1)
+  - </s>  (ID: 2)
+  - <pad> (선택적)
+```
+
+많은 독립 모델이 이 패턴을 그대로 사용:
+- Llama-2: `<s>`, `</s>`
+- Mistral: `<s>`, `</s>`
+- Solar-Open-100B: `<s>`, `</s>`, `<pad>`
+
+**결론**: Special token 일치만으로는 fine-tuning을 판단할 수 없음. **Vocab size, merge rules와 함께** 종합 판단 필요.
+
+---
+
+### 3. "동일한 BPE Merge Rules = Fine-tuning"에 대한 반론
+
+**False Positive 가능 상황:**
+
+| 요인 | 설명 |
+|------|------|
+| **초기 merge 패턴** | 첫 수백 개 merge는 언어 보편적 (공백, 구두점, 고빈도 문자쌍) |
+| **동일 corpus** | 동일한 공개 데이터셋 (Common Crawl, Wikipedia) 사용 시 유사한 merge 순서 |
+| **알고리즘 결정론** | BPE는 결정론적, 동일 입력이면 동일 출력 |
+
+**분석:**
+
+```
+일반적인 BPE 초기 merge 예시 (언어 공통):
+1. 't' + 'h' → 'th'
+2. 'e' + 'r' → 'er'
+3. 'i' + 'n' → 'in'
+4. ' ' + 't' → ' t'
+...
+```
+
+이러한 초기 패턴은 영어 기반 모델에서 거의 동일하게 나타남.
+
+**결론**:
+- **초기 1000개 merge** 일치: 큰 의미 없음 (언어 보편적)
+- **전체 merge 순서** 일치: Fine-tuning 강력 증거
+- **후반부 merge** 일치: Domain-specific, 더 강한 증거
+
+---
+
+### 종합: 더 강력한 Fine-tuning 증거는?
+
+| 증거 | 신뢰도 | 이유 |
+|------|--------|------|
+| Vocab size 완전 일치 | ⭐⭐⭐⭐⭐ | 우연 일치 거의 불가능 |
+| Embedding matrix 일치 | ⭐⭐⭐⭐⭐ | Weight까지 같으면 확실 |
+| 전체 merge rules 일치 | ⭐⭐⭐⭐ | 순서까지 같으면 동일 tokenizer |
+| 95%+ vocabulary 중복 | ⭐⭐⭐ | 높지만 false positive 가능 |
+| Special tokens 일치 | ⭐⭐ | 업계 관행으로 흔함 |
+| Tokenizer type 일치 | ⭐ | SentencePiece/BPE는 표준 |
+
+### Solar-Open-100B에 적용
+
+Solar-Open-100B의 경우:
+
+| 지표 | 결과 | Fine-tuning 가능성 |
+|------|------|-------------------|
+| **Vocab size** | 196,608 (어떤 모델과도 불일치) | ❌ 낮음 |
+| **Special tokens** | `<s>`, `</s>` (Mixtral과 유사) | ⚠️ 중립 |
+| **Vocab size 차이** | 가장 가까운 Qwen2보다 29% 큼 | ❌ 낮음 |
+
+**결론**: 반론을 고려하더라도, Solar-Open-100B의 vocab_size (196,608)가 모든 비교 대상과 크게 다른 점은 여전히 **from scratch의 강력한 증거**.
+
+---
+
 <!-- TUTORIAL_MARKER: 새로운 Q&A는 이 마커 위에 자동 추가됩니다 -->

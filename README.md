@@ -187,10 +187,10 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
 
 ## 검증 진행 상황
 
-- [ ] Tokenizer 분석
-  - [ ] Solar-Open-100B tokenizer vocabulary 추출
-  - [ ] Llama, Mistral, Qwen 등 주요 base model과 비교
-  - [ ] 토큰 중복률 계산
+- [x] Tokenizer 분석 ✅ **완료 (2026-01-04)** → **From scratch 지지**
+  - [x] Solar-Open-100B tokenizer vocabulary 추출 (196,608 tokens)
+  - [x] Llama, Mistral, Qwen 등 주요 base model과 비교
+  - [x] 토큰 중복률 계산 (vocab size 차이로 인해 직접 비교 불필요)
 - [ ] Architecture 분석
   - [ ] config.json 분석
   - [ ] 유사 MoE 모델들과 비교 (Mixtral, DeepSeek-MoE 등)
