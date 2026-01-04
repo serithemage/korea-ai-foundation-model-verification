@@ -325,15 +325,81 @@ VAETKI는 **Sliding Window Attention과 Full Attention을 혼합**하는 고유�
 
 ---
 
-### 5. LG AI 연구원 K-EXAONE 📋
+### 5. LG AI 연구원 K-EXAONE ✅
 
-**검증 상태**: 대기 중
+**검증일**: 2026-01-05
+
+#### 기본 정보
 
 | 항목 | 값 |
 |------|-----|
-| **모델 유형** | MoE |
+| **모델 유형** | Mixture-of-Experts (MoE) |
+| **model_type** | exaone_moe (고유) |
 | **총 파라미터** | 236B |
-| **Architecture 분석** | 미수행 |
+| **활성 파라미터** | ~23B (토큰당, top-8 experts) |
+| **Expert 구성** | 129개 (128 routed + 1 shared, top-8 활성화) |
+| **Context Length** | 262,144 tokens (256K) |
+
+#### Architecture 비교 요약
+
+| 파라미터 | K-EXAONE | Solar-Open-100B | A.X-K1 | VAETKI | 일치 모델 |
+|----------|----------|-----------------|--------|--------|----------|
+| hidden_size | 6,144 | 4,096 | 7,168 | 3,072 | 없음 |
+| num_layers | 48 | 48 | 61 | 48 | Solar, VAETKI |
+| num_heads | 64 | 64 | 64 | 24 | Solar, A.X-K1 |
+| num_kv_heads | 8 (GQA) | 8 (GQA) | 64 (MHA) | LoRA | Solar만 |
+| n_experts | 128+1 | 128+1 | 192+1 | 128+1 | Solar, VAETKI |
+| experts_per_tok | 8 | 8 | 8 | 8 | 모두 동일 |
+| vocab_size | 153,600 | 196,608 | 163,840 | 137,216 | 없음 |
+| rope_theta | 1,000,000 | 1,000,000 | 10,000 | 10,000 | Solar만 |
+| intermediate_size | 18,432 | N/A | 18,432 | 18,432 | A.X-K1, VAETKI |
+
+#### Attention 구조
+
+| 항목 | 값 | 비고 |
+|------|-----|------|
+| **Attention Type** | Sliding + Full Hybrid (LLLG 패턴) | 3 Sliding + 1 Full 반복 |
+| **Sliding Window** | 128 tokens | |
+| **GQA** | 8:1 (64 heads, 8 KV heads) | Solar와 동일 |
+| **Head Dimension** | 128 | |
+| **Scoring Function** | sigmoid | |
+
+K-EXAONE은 **LLLG 패턴 (Local-Local-Local-Global)**으로 Sliding과 Full Attention을 혼합합니다.
+
+#### MoE 구조
+
+| 항목 | 값 | 비고 |
+|------|-----|------|
+| **Routed Experts** | 128 | Solar, VAETKI와 동일 |
+| **Shared Experts** | 1 | Solar, VAETKI와 동일 |
+| **Top-k** | 8 | 모든 국내 MoE와 동일 |
+| **MoE Intermediate Size** | 2,048 | |
+| **Routed Scaling Factor** | 2.5 | |
+| **TopK Method** | noaux_tc | |
+| **First/Last K Dense** | 1 | 첫 번째 layer만 dense |
+| **is_moe_layer** | 첫 layer 제외 47개가 MoE | |
+
+#### 고유 특징
+
+1. **model_type: exaone_moe** - EXAONE 시리즈의 MoE 버전
+2. **LLLG 패턴 Attention** - 3 Sliding + 1 Full 반복 (VAETKI와 다른 비율)
+3. **262K Context** - 256K로 가장 긴 context length
+4. **vocab_size: 153,600** - 모든 비교 대상과 불일치
+5. **First Layer Dense** - 첫 번째 layer만 MoE 없이 dense
+6. **GQA 8:1** - Solar와 동일한 효율적 KV 구조
+7. **PII 토큰 내장** - `PI:EMAIL`, `PI:PHONE_NUM` 등 개인정보 마스킹 지원
+
+#### 판정
+
+| 일치 항목 수 | 비교 대상 | 결과 |
+|-------------|----------|------|
+| **4/9** | Solar-Open-100B | num_layers, num_heads, num_kv_heads, n_experts 일치 |
+| **3/9** | VAETKI | num_layers, n_experts, intermediate_size 일치 |
+| **2/9** | A.X-K1 | num_heads, intermediate_size 일치 |
+
+**결론: 0/5 핵심 항목 완전 일치 → 독립적 설계 (From scratch 지지)**
+
+> 참고: Solar와 일부 구조적 유사성(GQA 8:1, 129 experts)이 있으나, hidden_size, vocab_size가 다르고 Attention 패턴이 다르므로 독립 설계로 판정
 
 ---
 
@@ -345,6 +411,7 @@ VAETKI는 **Sliding Window Attention과 Full Attention을 혼합**하는 고유�
 | **HyperCLOVAX-SEED** | Dense | 72 | 5,120 | 40 | 8 | - | 128,256 |
 | **A.X-K1** | MoE | 61 | 7,168 | 64 | 64 | 192+1 | 163,840 |
 | **VAETKI** | MoE | 48 | 3,072 | 24 | LoRA | 128+1 | 137,216 |
+| **K-EXAONE** | MoE | 48 | 6,144 | 64 | 8 | 128+1 | 153,600 |
 | Mixtral-8x7B | MoE | 32 | 4,096 | 32 | 8 | 8 | 32,000 |
 | DeepSeek-V2 | MoE | 60 | 5,120 | 128 | 128 | 160+2 | 102,400 |
 | Qwen2-57B-A14B | MoE | 28 | 3,584 | 28 | 4 | 64 | 151,936 |

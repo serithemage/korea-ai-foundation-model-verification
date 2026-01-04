@@ -184,14 +184,42 @@ Tokenizer 분석은 LLM이 from scratch로 학습되었는지 판별하는 가�
 
 ---
 
-### 5. LG AI 연구원 K-EXAONE 📋
+### 5. LG AI 연구원 K-EXAONE ✅
 
-**검증 상태**: 대기 중
+**검증일**: 2026-01-05
 
-| 항목 | 값 |
-|------|-----|
-| **예상 Vocab Size** | 미확인 |
-| **Tokenizer Type** | 미확인 |
+#### Vocabulary 크기 비교
+
+| 모델 | Vocab Size | 비고 |
+|------|-----------|------|
+| **K-EXAONE** | **153,600** | 모든 모델과 불일치 |
+| Solar-Open-100B | 196,608 | -22% |
+| A.X-K1 | 163,840 | -6% |
+| VAETKI | 137,216 | +12% |
+| Qwen2-72B | 152,064 | +1% (유사하나 다름) |
+
+#### Special Tokens 구성
+
+| 토큰 | 값 | 비고 |
+|------|-----|------|
+| `bos_token` | `[BOS]` | 브라켓 스타일 |
+| `eos_token` | `<\|endofturn\|>` | 고유 스타일 |
+| `pad_token` | `[PAD]` | 브라켓 스타일 |
+| `<\|system\|>`, `<\|user\|>`, `<\|assistant\|>` | Conversation | ChatML 유사 |
+| `<think>`, `</think>` | Reasoning | Chain-of-thought 지원 |
+| `<tool_call>` | Tool calling | 함수 호출 지원 |
+| `<vision>`, `<\|image_pad\|>`, `<\|video_pad\|>` | Multimodal | VLM 지원 |
+| `<\|fim_prefix\|>`, `<\|fim_middle\|>`, `<\|fim_suffix\|>` | Code | Fill-in-the-middle |
+
+#### 판정
+
+| 지표 | 결과 | 해석 |
+|------|------|------|
+| **Vocab Size 일치** | 0개 모델 (Qwen2와 유사하나 1,536 차이) | ✅ From scratch 지지 |
+| **Special Tokens** | EXAONE 고유 스타일 (`[BOS]`, `<\|endofturn\|>`) | ✅ 독자 설계 |
+| **Tokenizer Type** | PreTrainedTokenizerFast | ⚠️ 중립 |
+
+**결론: From scratch 학습 주장 지지**
 
 ---
 
