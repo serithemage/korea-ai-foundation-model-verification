@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Task completed - consider updating tutorial'"
+          }
+        ]
+      }
+    ]
+  }
+}
