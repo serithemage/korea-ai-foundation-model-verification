@@ -4,6 +4,24 @@
 
 > **리포지토리 이름 변경 안내**: 이 프로젝트는 `solar-open-100b-scratch-verification`에서 `korea-ai-foundation-model-verification`으로 이름이 변경되었습니다. 이전 URL로 접속하면 자동으로 이 페이지로 리다이렉트됩니다.
 
+---
+
+## 프로젝트 성격
+
+**이 프로젝트는 불완전한 연구입니다.**
+
+이 프로젝트의 핵심 목적은 모델 검증 그 자체가 아니라, **LLM 도구(Claude, Perplexity)를 활용하여 비전문가도 전문 영역의 학습과 실습이 가능하다는 것을 보여주는 POC(Proof of Concept)** 입니다.
+
+| 이 프로젝트가 증명하고자 하는 것 | 이 프로젝트가 아닌 것 |
+|-------------------------------|---------------------|
+| LLM 도구를 활용한 자기주도 학습 가능성 | 공식적/권위적 검증 보고서 |
+| 비전문가의 전문 영역 진입 장벽 완화 | 학술적으로 검증된 연구 |
+| AI-assisted 학습 방법론 실험 | 모델 개발사에 대한 비판/평가 |
+
+**[변경 이력 (Changelog)](CHANGELOG.md)** - 프로젝트의 진행 과정과 주요 변경 사항을 확인할 수 있습니다.
+
+---
+
 ## 프로젝트 개요
 
 ### 시작 동기
@@ -78,7 +96,7 @@
 
 > *Vision Encoder 재사용:
 > - [config.json](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B/blob/main/config.json)의 `vision_config.model_type: "qwen2_5_vl"`이 명시적으로 Qwen2.5 Vision 사용을 나타냄
-> - NAVER는 HuggingFace에 이를 명시적으로 공개함 (투명성 확보)
+> - NAVER는 HuggingFace에 이를 명시적으로 공개함 (투명성 확보). 추론 도구는 [GitHub](https://github.com/NAVER-Cloud-HyperCLOVA-X)에서 제공
 > - **정부 가이드라인 참고**: 국가 AI 파운데이션 모델 프로젝트는 "from scratch" 요건을 VLM의 모든 컴포넌트에 적용하는지 명시하지 않음. 프로젝트는 방법론보다 벤치마크 성능 중심으로 평가하며, 팀별 개발 전략의 자율성을 허용함 ([MSIT 발표](https://www.msit.go.kr/eng/bbs/view.do?sCode=eng&nttSeqNo=1131&bbsSeqNo=42) 참조)
 > - VLM에서 검증된 Vision Encoder 재사용은 업계 일반적 관행 (LLaVA, Qwen-VL 등 대부분의 VLM이 CLIP/SigLIP 재사용)
 
