@@ -36,7 +36,7 @@
 | 기관 | 모델명 | 파라미터 | 유형 | HuggingFace | 검증 상태 | 판정 |
 |------|--------|----------|------|-------------|-----------|------|
 | **Upstage** | Solar-Open-100B | 102B | MoE | [링크](https://huggingface.co/upstage/Solar-Open-100B) | ✅ 완료 | From scratch 신뢰 |
-| **NAVER Cloud** | HyperCLOVAX-SEED-Think | 32B | Dense (VLM) | [링크](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B) | ⚠️ 진행중 | 부분적 재사용 |
+| **NAVER Cloud** | HyperCLOVAX-SEED-Think | 32B | Dense (VLM) | [링크](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B) | ⚠️ 진행중 | Vision 재사용 (투명 공개) |
 | **SKT** | A.X-K1 | 519B | MoE | [링크](https://huggingface.co/skt/A.X-K1) | ✅ 완료 | From scratch 신뢰 |
 | **NC AI** | VAETKI | 112B | MoE | [링크](https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI) | ✅ 완료 | From scratch 신뢰 |
 | **LG AI 연구원** | K-EXAONE | 236B | MoE | [링크](https://huggingface.co/LGAI-EXAONE/K-EXAONE-236B-A23B) | ✅ 완료 | From scratch 신뢰 |
@@ -76,9 +76,11 @@
 | **Text Decoder** | 고유 architecture (rope_theta 50M) | ⚠️ 추가 검증 필요** |
 | **Tokenizer** | vocab_size 128,256 (Llama 3와 256 차이) | ⚠️ 재해석 필요*** |
 
-> *Vision Encoder 재사용 근거:
+> *Vision Encoder 재사용:
 > - config.json의 `model_type: "qwen2_5_vl"`이 명시적으로 Qwen2.5 Vision 사용을 나타냄
-> - VLM에서 검증된 Vision Encoder 재사용은 일반적인 관행이나, "from scratch" 주장 시 범위 명시 필요
+> - NAVER는 HuggingFace 및 GitHub에 이를 명시적으로 공개함 (투명성 확보)
+> - **정부 가이드라인 참고**: 국가 AI 파운데이션 모델 프로젝트는 "from scratch" 요건을 VLM의 모든 컴포넌트에 적용하는지 명시하지 않음. 프로젝트는 방법론보다 벤치마크 성능 중심으로 평가하며, 팀별 개발 전략의 자율성을 허용함 ([MSIT 발표](https://www.msit.go.kr/eng/bbs/view.do?sCode=eng&nttSeqNo=1131&bbsSeqNo=42) 참조)
+> - VLM에서 검증된 Vision Encoder 재사용은 업계 일반적 관행 (LLaVA, Qwen-VL 등 대부분의 VLM이 CLIP/SigLIP 재사용)
 
 > **Text Decoder 추가 검증 필요:
 > - `rope_theta: 50,000,000` (Llama 3의 500,000 대비 100배)은 고유 설계를 시사
@@ -91,7 +93,9 @@
 > - 단순 "Llama 3 + 256 special tokens" 재사용이 아닌 한국어 최적화 확장으로 보이나, 공식 문서화 부재
 > - HyperCLOVA X 기술 보고서(100,000 vocab)와 SEED 버전(128,256 vocab)의 28,256 차이에 대한 공식 설명 없음
 
-**판정: 부분적 재사용 (Vision Encoder는 from scratch 아님)**
+**판정: Vision Encoder 재사용, Text Decoder는 추가 검증 필요**
+
+> 참고: Vision Encoder 재사용이 정부 가이드라인 위반인지는 불명확함. 공개된 프로젝트 요건에서 VLM 컴포넌트별 "from scratch" 요건을 명시하지 않으며, NAVER는 이를 투명하게 공개함.
 
 상세 분석:
 - [Tokenizer 분석](docs/01-tokenizer-analysis.md)
