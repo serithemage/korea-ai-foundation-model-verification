@@ -1,23 +1,42 @@
 # Update Tutorial Skill
 
-**Purpose**: Q&A 형식의 검증 튜토리얼을 docs/00-tutorial.md에 추가
+**Purpose**: Q&A 형식의 검증 튜토리얼을 주제별 파일에 추가
 
 ## Description
 
-이 skill은 Solar-Open-100B 검증 과정에서 진행된 Q&A를 `docs/00-tutorial.md` 튜토리얼 문서에 추가합니다.
+이 skill은 검증 과정에서 진행된 Q&A를 `docs/tutorial/` 폴더의 주제별 파일에 추가합니다.
 
 ## Instructions
 
 사용자가 `/update-tutorial` 명령을 실행하면:
 
 1. 현재 대화에서 진행된 주요 Q&A를 식별합니다
-2. `docs/00-tutorial.md`의 `<!-- TUTORIAL_MARKER -->` 위치를 찾습니다
-3. 새로운 Q&A를 마커 바로 위에 추가합니다
-4. Q&A 번호를 자동으로 증가시킵니다
+2. Q&A의 주제를 분류합니다
+3. 해당 주제의 파일에서 `<!-- SECTION_MARKER -->` 위치를 찾습니다
+4. 새로운 Q&A를 마커 바로 위에 추가합니다
+5. `docs/tutorial/README.md`의 목차를 업데이트합니다
 
-## Target File
+## 튜토리얼 파일 구조
 
-**튜토리얼 파일**: `docs/00-tutorial.md`
+```
+docs/tutorial/
+├── README.md                      # 인덱스 + 목차
+├── 01-기초개념.md                  # Q0, Q1 등
+├── 02-tokenizer-분석.md           # Q2, Q5, Q6, Q10 등
+├── 03-weight-architecture-분석.md # Q3, Q4, Q7, Q12 등
+├── 04-사례연구.md                  # Q8, Q9 등
+└── 05-방법론-평가.md               # Q11 등
+```
+
+## 주제 분류 기준
+
+| 주제 키워드 | 대상 파일 |
+|------------|----------|
+| from scratch 개념, 검증 방법 개요, 논란 배경 | 01-기초개념.md |
+| Tokenizer, vocabulary, vocab_size, merge rules, BPE, special tokens | 02-tokenizer-분석.md |
+| Weight, cosine similarity, architecture, MoE, layer, expert | 03-weight-architecture-분석.md |
+| 특정 모델명 (Solar, HyperCLOVAX, A.X-K1 등), 논란 사례, 검증 결과 | 04-사례연구.md |
+| 방법론 비판, 학술 연구, 개선 방향, 한계점 | 05-방법론-평가.md |
 
 ## 작성 스타일 가이드
 
@@ -60,7 +79,7 @@ Special token도 살펴보면, Solar는 `<s>`, `</s>`, `<pad>` 형식을 사용�
 4. **독자에게 말하듯 씁니다**: "살펴보면", "확인해보니", "흥미로운 점은"
 5. **테이블은 보조 수단으로만**: 핵심 수치 요약에만 사용하고, 주 설명은 서술형으로
 
-### Q&A Format
+## Q&A Format
 
 ```markdown
 ---
@@ -78,11 +97,11 @@ Special token도 살펴보면, Solar는 `<s>`, `</s>`, `<pad>` 형식을 사용�
 
 ## Process
 
-1. `docs/00-tutorial.md` 파일을 읽어서 현재 Q&A 개수를 파악합니다
-2. 대화에서 사용자가 물어본 검증 관련 질문을 식별합니다
-3. 해당 질문과 답변을 **내러티브(서술형) 형식**으로 정리합니다
-4. `<!-- TUTORIAL_MARKER -->` 라인 바로 위에 새 Q&A를 삽입합니다
-5. `docs/00-tutorial.md`를 업데이트합니다
+1. `docs/tutorial/README.md`를 읽어 현재 Q&A 개수를 파악합니다
+2. 대화에서 검증 관련 질문을 식별합니다
+3. 질문의 주제를 분류하여 대상 파일을 결정합니다
+4. 해당 파일의 `<!-- SECTION_MARKER -->` 위에 새 Q&A를 **내러티브 형식으로** 삽입합니다
+5. `docs/tutorial/README.md`의 목차에 새 Q&A 항목을 추가합니다
 
 ## Example Usage
 
@@ -90,4 +109,13 @@ Special token도 살펴보면, Solar는 `<s>`, `</s>`, `<pad>` 형식을 사용�
 User: /update-tutorial
 ```
 
-이 명령 실행 시, 현재 세션에서 진행된 검증 관련 Q&A를 `docs/00-tutorial.md`에 내러티브 형식으로 추가합니다.
+이 명령 실행 시, 현재 세션에서 진행된 검증 관련 Q&A를 적절한 주제 파일에 내러티브 형식으로 추가합니다.
+
+## 새 주제 파일 생성
+
+기존 분류에 맞지 않는 새로운 주제가 나타나면:
+
+1. `docs/tutorial/0N-새주제.md` 파일을 생성합니다
+2. 파일 하단에 `<!-- SECTION_MARKER -->` 마커를 추가합니다
+3. `docs/tutorial/README.md` 목차에 새 섹션을 추가합니다
+4. 이 스킬 파일의 "주제 분류 기준" 테이블을 업데이트합니다
