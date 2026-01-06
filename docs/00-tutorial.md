@@ -1,6 +1,6 @@
 # 튜토리얼: Q&A 형식 학습 기록
 
-이 문서는 Solar-Open-100B 검증 과정에서 진행한 질문과 답변을 시간순으로 기록합니다.
+이 문서는 클로드 스킬을 이용해서 국가 AI 파운데이션 모델 검증 프로젝트(구 Solar-Open-100B 검증 프로젝트)를 진행하면서 던진 질문과 답변을 시간순으로 기록한 것입니다.
 
 ---
 
@@ -10,48 +10,13 @@
 
 **답변**:
 
-### 국가 AI 파운데이션 모델 프로젝트 규정
+한국 정부의 국가 AI 파운데이션 모델 프로젝트는 "from scratch 학습"을 필수 요건으로 규정하고 있습니다. 여기서 from scratch란 무작위로 초기화된 weight에서 시작하여 전체 학습을 수행하는 것을 의미하며, 기존 모델의 pre-trained weight를 가져와 추가 학습하는 fine-tuning과는 근본적으로 다릅니다.
 
-한국 정부의 국가 AI 파운데이션 모델 프로젝트는 **"from scratch 학습"을 필수 요건**으로 규정하고 있습니다.
+이 구분이 중요한 첫 번째 이유는 AI 주권 문제입니다. 기존 모델의 weight를 사용하면 해당 모델의 라이선스와 제약에 종속되기 때문에, 국가 전략 기술로서 독자적인 기술력을 보유하려면 from scratch 학습이 필수적입니다. 향후 모델을 수정하거나 확장할 때의 자유도 역시 from scratch일 때만 확보됩니다.
 
-| 학습 방식 | 정의 | 프로젝트 적합성 |
-|----------|------|----------------|
-| **From scratch** | 무작위 초기화된 weight에서 시작하여 전체 학습 수행 | ✅ 적합 |
-| **Fine-tuning** | 기존 모델의 pre-trained weight를 가져와 추가 학습 | ❌ 부적합 |
+두 번째 이유는 국민 세금 사용과 관련됩니다. 국가 프로젝트는 정부 예산으로 진행되는데, fine-tuning은 from scratch 대비 훨씬 적은 비용으로 가능합니다. 학습 토큰 수로 비교하면 from scratch는 수조에서 수십조 토큰이 필요하지만, fine-tuning은 수십억에서 수백억 토큰이면 충분합니다. GPU 시간도 from scratch는 수만에서 수십만 GPU-hours가 드는 반면, fine-tuning은 수백에서 수천 GPU-hours로 가능합니다. 비용으로 환산하면 from scratch는 수백억에서 수천억 원이 소요되지만, fine-tuning은 수억에서 수십억 원 수준입니다. 따라서 from scratch 비용을 받고 fine-tuning만 했다면 이는 예산 낭비 또는 사기 논란으로 이어질 수 있습니다.
 
-### 논란의 핵심 이유
-
-**1. AI 주권 (AI Sovereignty)**
-
-From scratch 학습을 요구하는 이유는 **기술적 독립성** 확보입니다:
-- 기존 모델(Llama, GPT 등)의 weight를 사용하면 해당 모델의 라이선스와 제약에 종속
-- 국가 전략 기술로서 독자적인 기술력 보유 필요
-- 향후 모델 수정/확장에서의 자유도 확보
-
-**2. 국민 세금 사용**
-
-국가 프로젝트는 정부 예산(국민 세금)으로 진행됩니다:
-- Fine-tuning은 from scratch 대비 훨씬 적은 비용으로 가능
-- From scratch 비용을 받고 fine-tuning만 했다면 예산 낭비 또는 사기 논란 가능
-- 납세자에 대한 책임과 투명성 문제
-
-**3. 신뢰도와 평판**
-
-기술 기업의 핵심 자산은 신뢰입니다:
-- "From scratch"라고 주장했는데 실제로는 fine-tuning이었다면 심각한 신뢰 손상
-- 국제 AI 커뮤니티에서의 한국 AI 기술력 평판에 영향
-- 후속 프로젝트 및 투자 유치에 부정적 영향
-
-### From scratch vs Fine-tuning 비용 차이
-
-| 항목 | From scratch | Fine-tuning |
-|------|-------------|-------------|
-| **학습 토큰** | 수조~수십조 | 수십억~수백억 |
-| **GPU 시간** | 수만~수십만 GPU-hours | 수백~수천 GPU-hours |
-| **비용** | 수백억~수천억 원 | 수억~수십억 원 |
-| **기간** | 수개월~1년 이상 | 수일~수주 |
-
-이러한 비용 차이로 인해, from scratch 주장이 거짓이라면 그것은 단순한 기술적 오류가 아닌 **예산 집행의 투명성 문제**가 됩니다.
+세 번째 이유는 신뢰도와 평판입니다. "from scratch"라고 주장했는데 실제로는 fine-tuning이었다면 심각한 신뢰 손상이 발생합니다. 이는 국제 AI 커뮤니티에서 한국 AI 기술력의 평판에 영향을 미치고, 후속 프로젝트 및 투자 유치에도 부정적 영향을 줍니다.
 
 ---
 
@@ -61,38 +26,19 @@ From scratch 학습을 요구하는 이유는 **기술적 독립성** 확보입�
 
 **답변**:
 
-LLM이 from scratch로 학습되었는지 vs fine-tuned인지 검증하는 여러 기술적 방법이 있습니다:
+LLM이 from scratch로 학습되었는지 검증하는 방법은 여러 가지가 있으며, 각각 장단점이 있습니다.
 
-1. **Tokenizer 분석** (가장 접근성 높음)
-   - Tokenizer는 재학습 비용이 높아 fine-tuning시 거의 재사용됨
-   - Vocabulary의 95% 이상이 기존 모델과 동일하면 fine-tuning 가능성 높음
-   - `tokenizer.get_vocab()`으로 추출하여 비교
+가장 접근성이 높은 방법은 Tokenizer 분석입니다. Tokenizer는 재학습 비용이 높아서 fine-tuning 시에는 거의 재사용됩니다. 따라서 vocabulary의 95% 이상이 기존 모델과 동일하면 fine-tuning 가능성이 높습니다. `tokenizer.get_vocab()`으로 vocabulary를 추출하여 비교할 수 있습니다.
 
-2. **Weight 분석**
-   - Fine-tuned 모델은 초기 레이어에서 base model과 90% 이상 cosine similarity 유지
-   - SHA-256 해시로 weight tensor 비교
-   - From scratch 모델은 PCA에서 orthogonal 분포
+Weight 분석도 효과적인 방법입니다. Fine-tuned 모델은 초기 레이어에서 base model과 90% 이상의 cosine similarity를 유지하는 경향이 있습니다. SHA-256 해시로 weight tensor를 비교하거나, PCA 분석으로 weight 분포를 시각화할 수 있습니다. From scratch 모델은 PCA에서 orthogonal한 분포를 보입니다.
 
-3. **Architecture 비교**
-   - `model.config`로 hyperparameter 확인
-   - 동일한 config는 fine-tuning 강력 증거
-   - 고유한 구성요소(예: 특이한 RoPE scaling)는 from scratch 증거
+Architecture 비교는 `model.config`로 hyperparameter를 확인하는 방식입니다. 동일한 config는 fine-tuning의 강력한 증거이며, 고유한 구성요소가 있다면 from scratch 증거가 됩니다. 예를 들어 특이한 RoPE scaling 설정 같은 것이 그렇습니다.
 
-4. **행동 테스트**
-   - Knowledge cutoff 날짜 확인
-   - Safety alignment, refusal pattern이 base model과 동일하면 fine-tuning 가능성
+행동 테스트는 Knowledge cutoff 날짜를 확인하거나, Safety alignment와 refusal pattern이 base model과 동일한지 살펴보는 방식입니다. 이런 패턴이 유사하면 fine-tuning 가능성이 있습니다.
 
-5. **Compute 추정**
-   - From scratch는 fine-tuning 대비 10-100배 더 많은 compute 필요
-   - 19.7T tokens 학습은 massive compute로, from scratch 주장과 일관성 있음
+Compute 추정도 간접적인 증거가 됩니다. From scratch는 fine-tuning 대비 10-100배 더 많은 compute가 필요합니다. 예를 들어 19.7T tokens 학습은 massive compute를 요구하므로, from scratch 주장과 일관성이 있습니다.
 
-| 방법 | 신뢰도 | 접근성 | Fine-tuning 탐지력 |
-|------|--------|--------|-------------------|
-| Tokenizer 분석 | 높음 | 높음 | 우수 |
-| Weight 해싱 | 높음 | 중간 | 양호 |
-| Architecture 매칭 | 중간 | 높음 | 양호 |
-| 행동 테스트 | 중간 | 높음 | 보통 |
-| Training Logs | 매우 높음 | 낮음 | 우수 |
+신뢰도 측면에서 보면, Training Logs가 가장 높은 신뢰도를 가지지만 접근성이 낮습니다. Tokenizer 분석은 신뢰도와 접근성이 모두 높아서 첫 번째 검증 수단으로 적합합니다.
 
 ---
 
@@ -102,77 +48,15 @@ LLM이 from scratch로 학습되었는지 vs fine-tuned인지 검증하는 여�
 
 **답변**:
 
-### Tokenizer의 작동 원리
+Tokenizer는 텍스트를 모델이 처리할 수 있는 숫자(token ID)로 변환하는 역할을 합니다. 주요 방식으로는 BPE(Byte Pair Encoding), WordPiece, SentencePiece가 있습니다. BPE는 빈도 기반으로 인접 문자쌍을 병합하며 GPT-2나 RoBERTa에서 사용됩니다. WordPiece는 likelihood 최대화를 기준으로 병합하며 BERT에서 사용됩니다. SentencePiece는 공백을 포함한 원시 텍스트를 처리하며 ▁ 마커를 사용하는데, T5, Gemma, Llama 등에서 채택하고 있습니다.
 
-Tokenizer는 텍스트를 모델이 처리할 수 있는 숫자(token ID)로 변환합니다. 주요 방식:
+Fine-tuning 시 tokenizer를 재학습하지 않는 이유가 있습니다. 우선 embedding 호환성 문제가 있어서, 새 vocabulary는 pre-trained embedding과 호환되지 않습니다. 또한 tokenizer 재학습은 전체 corpus를 재처리해야 하므로 비용이 많이 듭니다. 게다가 vocabulary를 변경하면 원래 도메인에서 성능이 저하될 위험도 있습니다.
 
-| 방식 | 특징 | 사용 모델 |
-|------|------|----------|
-| **BPE** (Byte Pair Encoding) | 빈도 기반으로 인접 문자쌍 병합 | GPT-2, RoBERTa |
-| **WordPiece** | likelihood 최대화 기준 병합 | BERT |
-| **SentencePiece** | 공백 포함 원시 텍스트 처리 (▁ 마커 사용) | T5, Gemma, Llama |
+Vocabulary 중복률로 판단할 때, 98% 이상이면 fine-tuning 가능성이 높습니다. 이는 safety token 등 소량만 추가한 경우에 해당합니다. 90-98%는 continued pre-training이나 vocabulary 확장을 시사합니다. 90% 미만이면 from scratch 학습의 강력한 증거가 됩니다.
 
-### Fine-tuning 시 Tokenizer를 재학습하지 않는 이유
+분석 기법으로는 먼저 vocabulary 비교가 있습니다. 두 tokenizer의 vocab을 추출하여 교집합을 구하고 중복률을 계산합니다. 그 다음 merge rules 비교가 있는데, BPE나 SentencePiece에서 merge 순서까지 같으면 동일한 tokenizer입니다. Special tokens 비교도 중요한데, `[PAD]`, `[UNK]`, `[CLS]`, `<eos>` 등의 패턴을 살펴봅니다. 마지막으로 encoding 결과 비교가 있어서, 동일한 입력에 대해 다른 토큰 분할이 나오면 다른 tokenizer임을 알 수 있습니다.
 
-1. **Embedding 호환성**: 새 vocabulary는 pre-trained embedding과 호환되지 않음
-2. **비용**: Tokenizer 재학습은 전체 corpus 재처리 필요
-3. **성능 저하 위험**: Vocabulary 변경 시 원래 도메인 성능 저하
-
-### Vocabulary 중복률 기준
-
-| 중복률 | 해석 |
-|--------|------|
-| **>98%** | Fine-tuning 가능성 높음 (safety token 등 소량 추가만) |
-| **90-98%** | Continued pre-training 또는 vocabulary 확장 |
-| **<90%** | From scratch 학습 강력 증거 |
-
-### 분석 기법
-
-**1. Vocabulary 비교**
-```python
-from transformers import AutoTokenizer
-
-base_tok = AutoTokenizer.from_pretrained("base-model")
-target_tok = AutoTokenizer.from_pretrained("target-model")
-
-base_vocab = set(base_tok.get_vocab().keys())
-target_vocab = set(target_tok.get_vocab().keys())
-
-overlap = len(base_vocab & target_vocab)
-overlap_pct = (overlap / len(base_vocab)) * 100
-print(f"중복률: {overlap_pct:.2f}%")
-```
-
-**2. Merge Rules 비교 (BPE/SentencePiece)**
-```python
-# merges가 동일하면 같은 tokenizer
-base_merges = base_tok.backend_tokenizer.model.get_vocab()
-target_merges = target_tok.backend_tokenizer.model.get_vocab()
-```
-
-**3. Special Tokens 비교**
-```python
-print(base_tok.special_tokens_map)
-print(target_tok.special_tokens_map)
-# [PAD], [UNK], [CLS], <eos> 등 비교
-```
-
-**4. Encoding 결과 비교**
-```python
-text = "Hello, world! 토큰화 테스트입니다."
-base_tokens = base_tok.tokenize(text)
-target_tokens = target_tok.tokenize(text)
-# 동일 입력에 다른 토큰 분할 → 다른 tokenizer
-```
-
-### Solar-Open-100B 검증 시 비교 대상
-
-1. **Llama 계열**: Llama-2, Llama-3 (SentencePiece 기반)
-2. **Mistral/Mixtral**: MoE 아키텍처 유사
-3. **Qwen**: 대규모 한국어 포함 모델
-4. **DeepSeek-MoE**: MoE 아키텍처
-
-**핵심**: Solar-Open-100B의 tokenizer가 위 모델들과 90% 미만 중복이면 from scratch 주장 지지
+Solar-Open-100B를 검증할 때는 Llama 계열, Mistral/Mixtral, Qwen, DeepSeek-MoE 등과 비교합니다. 이 모델들과 90% 미만의 중복률이 나오면 from scratch 주장이 지지됩니다.
 
 ---
 
@@ -184,130 +68,17 @@ target_tokens = target_tok.tokenize(text)
 
 Weight 분석은 모델의 가중치를 직접 비교하여 from scratch 학습 여부를 판별하는 방법입니다. Fine-tuned 모델은 base model과 높은 가중치 유사성을 보이는 반면, from scratch 모델은 독립적인 가중치 분포를 갖습니다.
 
-### 1. Layer별 Cosine Similarity 분석
+첫 번째 방법은 Layer별 Cosine Similarity 분석입니다. 두 모델의 대응하는 weight matrix 간 방향적 유사성을 측정합니다. Fine-tuned 모델은 초기 레이어에서 0.95 이상의 유사도를 보이며 후기 레이어로 갈수록 점차 감소합니다. 반면 from scratch 모델은 전체적으로 0에 가까운 낮은 유사도를 보입니다.
 
-두 모델의 대응하는 weight matrix 간 방향적 유사성을 측정합니다.
+두 번째 방법은 Weight Tensor 해싱입니다. 대규모 모델에서 효율적인 비교를 위해 해시 기반 fingerprint를 사용합니다. MinHash나 SimHash로 Jaccard 유사도를 계산하거나, Tensor Checksum으로 양자화된 weight의 perceptual hash를 비교합니다. MSE가 1e-5 이내면 동일 layer로 판정합니다. 동일한 해시가 나오면 동일 weight이므로 fine-tuning의 강력한 증거입니다.
 
-**원리**:
-- Fine-tuned 모델: 초기 레이어에서 >0.95 유사도, 후기 레이어에서 점차 감소
-- From scratch 모델: 전체적으로 낮은 유사도 (~0에 가까움)
+세 번째 방법은 PCA 분석입니다. 고차원 weight matrix를 저차원으로 투영하여 분포를 비교합니다. Fine-tuned 모델은 base model 근처에 clustering되어 80% 이상 overlap됩니다. From scratch 모델은 완전히 다른 cluster를 형성합니다.
 
-**코드 예시**:
-```python
-import torch
-import torch.nn.functional as F
-from transformers import AutoModel
+네 번째 방법은 Embedding Layer 분석입니다. Token embedding은 fine-tuning에서 가장 적게 변하므로 특히 중요합니다. Embedding matrix의 cosine similarity를 비교하거나, K-means clustering으로 centroid를 비교합니다. 흥미로운 점은 shape가 불일치하면, 즉 다른 vocabulary를 사용한다면 그 자체로 from scratch 증거가 됩니다.
 
-def cosine_similarity(w1, w2):
-    w1_flat = w1.flatten().float()
-    w2_flat = w2.flatten().float()
-    return F.cosine_similarity(w1_flat.unsqueeze(0), w2_flat.unsqueeze(0)).item()
+유사도 임계값을 보면, fine-tuning의 경우 평균 Layer Cosine Sim이 0.90 이상이고 초기 layer는 0.99 이상입니다. Embedding Cosine Sim은 0.98 이상입니다. From scratch의 경우 평균 Layer Cosine Sim이 0.3 미만이고 Embedding Cosine Sim은 0.1 미만입니다.
 
-base_model = AutoModel.from_pretrained("base-model")
-target_model = AutoModel.from_pretrained("target-model")
-
-for name, param in base_model.named_parameters():
-    if name in dict(target_model.named_parameters()):
-        target_param = dict(target_model.named_parameters())[name]
-        if param.shape == target_param.shape:
-            sim = cosine_similarity(param.data, target_param.data)
-            print(f"{name}: {sim:.4f}")
-```
-
-### 2. Weight Tensor 해싱
-
-대규모 모델에서 효율적인 비교를 위해 해시 기반 fingerprint를 사용합니다.
-
-**방법**:
-- **MinHash/SimHash**: Locality-sensitive hash로 Jaccard 유사도 계산
-- **Tensor Checksum**: 양자화된 weight의 perceptual hash 비교
-- **Exact Matching**: MSE < 1e-5 이내면 동일 layer로 판정
-
-```python
-import hashlib
-
-def weight_hash(tensor):
-    arr = tensor.cpu().numpy().tobytes()
-    return hashlib.sha256(arr).hexdigest()[:16]
-
-# 동일 해시 = 동일 weight (fine-tuning 강력 증거)
-```
-
-### 3. PCA 분석
-
-고차원 weight matrix를 저차원으로 투영하여 분포 비교.
-
-**해석**:
-- Fine-tuned: Base model 근처에 clustering (80% 이상 overlap)
-- From scratch: 완전히 다른 cluster 형성
-
-```python
-from sklearn.decomposition import PCA
-import numpy as np
-
-# Layer weight를 feature vector로 추출
-features_base = extract_features(base_model)
-features_target = extract_features(target_model)
-
-pca = PCA(n_components=2)
-all_features = np.vstack([features_base, features_target])
-reduced = pca.fit_transform(all_features)
-
-# 시각화로 clustering 패턴 확인
-```
-
-### 4. Embedding Layer 분석
-
-Token embedding은 fine-tuning에서 가장 적게 변하므로 특히 중요합니다.
-
-**비교 방법**:
-- Embedding matrix 직접 cosine similarity
-- K-means clustering으로 centroid 비교
-- L2 norm 및 variance 비교
-
-```python
-base_emb = base_model.get_input_embeddings().weight.data
-target_emb = target_model.get_input_embeddings().weight.data
-
-# Shape 불일치 = 다른 vocabulary = from scratch 증거
-if base_emb.shape != target_emb.shape:
-    print("다른 vocabulary 사용 - from scratch 가능성")
-else:
-    sim = cosine_similarity(base_emb, target_emb)
-    print(f"Embedding 유사도: {sim:.4f}")
-```
-
-### 유사도 임계값 기준
-
-| 지표 | Fine-tuning | From Scratch |
-|------|-------------|--------------|
-| **평균 Layer Cosine Sim** | >0.90 (초기 layer >0.99) | <0.3 |
-| **Embedding Cosine Sim** | >0.98 | <0.1 |
-| **Hash Jaccard/Hamming** | >0.85 / <2% 차이 | <0.2 / >20% 차이 |
-| **PCA Wasserstein Dist** | <0.05 | >0.5 |
-
-### 100B MoE 모델 분석 시 실제 도전 과제
-
-1. **메모리/연산량**: 100B MoE 모델은 full weight 로드에 >1TB RAM 필요
-   - 해결: Sharded loading (HF Accelerate), FP8 양자화
-
-2. **MoE 구조 특수성**: Expert별 weight 분리 분석 필요
-   - Router weight와 Expert weight 별도 비교
-
-3. **Architecture 불일치**: topology가 다르면 직접 비교 불가
-   - num_experts, head_dim 등 먼저 확인
-
-4. **수치 불안정성**: 대규모 tensor에서 precision error 누적
-   - Double precision 사용 또는 submatrix 샘플링 (10-20%)
-
-### Solar-Open-100B 검증 적용
-
-Solar-Open-100B의 weight를 다음 모델들과 비교:
-- **Llama-3**: Dense 모델 기준선
-- **Mixtral**: MoE 구조 유사
-- **DeepSeek-MoE**: MoE 아키텍처
-
-**핵심**: 모든 주요 base model과 평균 cosine similarity 0.5 미만이면 from scratch 주장 지지
+100B MoE 모델을 분석할 때는 몇 가지 실제적인 도전 과제가 있습니다. 메모리와 연산량 측면에서 100B MoE 모델은 full weight 로드에 1TB 이상의 RAM이 필요한데, sharded loading이나 FP8 양자화로 해결할 수 있습니다. MoE 구조의 특수성 때문에 router weight와 expert weight를 별도로 분석해야 합니다. Architecture가 불일치하면 직접 비교가 불가능하므로 num_experts, head_dim 등을 먼저 확인해야 합니다. 대규모 tensor에서는 precision error가 누적될 수 있어서 double precision을 사용하거나 10-20% submatrix를 샘플링합니다.
 
 ---
 
@@ -317,170 +88,17 @@ Solar-Open-100B의 weight를 다음 모델들과 비교:
 
 **답변**:
 
-Cosine Similarity는 두 벡터 간의 방향적 유사성을 측정하는 지표로, LLM weight 비교에서 핵심적인 역할을 합니다.
+Cosine Similarity는 두 벡터 간의 방향적 유사성을 측정하는 지표로, LLM weight 비교에서 핵심적인 역할을 합니다. 수학적으로는 두 벡터의 내적을 각 벡터의 L2 norm으로 나눈 값입니다. 결과는 -1에서 1 사이이며, 양수 weight의 경우 0에서 1 사이입니다.
 
-### 수학적 정의
+Weight 비교에 Cosine Similarity를 사용하는 이유는 여러 가지입니다. 우선 scale 불변성이 있어서 벡터 크기에 독립적으로 방향만 비교합니다. 고차원에서도 효율적으로 계산이 가능하고, 1에 가까울수록 유사하고 0에 가까울수록 다르다는 해석이 직관적입니다. 별도의 normalize 과정 없이 자체적으로 정규화가 포함됩니다.
 
-```
-cos(θ) = (A · B) / (||A|| × ||B||)
-```
+값의 해석을 보면, 0.99에서 1.0 사이는 거의 동일한 weight로 fine-tuning의 강력한 증거입니다. 0.90에서 0.99는 높은 유사도로 fine-tuning이거나 같은 initialization일 가능성을 시사합니다. 0.50에서 0.90은 중간 유사도로 부분적 공유 가능성이 있습니다. 0.10에서 0.50은 낮은 유사도로 독립적 학습 가능성이 있습니다. 0.0에서 0.10은 거의 무관한, orthogonal한 관계로 from scratch의 강력한 증거입니다.
 
-- **A · B**: 두 벡터의 내적 (dot product)
-- **||A||, ||B||**: 각 벡터의 L2 norm (크기)
-- **결과 범위**: -1 ~ 1 (양수 weight의 경우 0 ~ 1)
+Fine-tuned 모델의 전형적인 layer별 패턴을 살펴보면 흥미롭습니다. Embedding인 Layer 0은 0.98에서 0.99로 거의 변화가 없습니다. 초기 layer인 Layer 1-5는 0.95에서 0.99로 약간의 조정만 있습니다. 중간 layer인 Layer 6-20은 0.85에서 0.95로 점진적으로 감소합니다. 후기 layer인 Layer 21 이상은 0.70에서 0.90으로 task-specific 학습이 반영됩니다. Output Layer는 0.60에서 0.85로 가장 많이 변화합니다. 반면 from scratch 모델은 모든 layer에서 0.0에서 0.3 수준의 낮은 유사도를 보입니다. 이는 random initialization의 효과입니다.
 
-### Weight 비교에 Cosine Similarity를 사용하는 이유
+대규모 모델에서는 실용적인 고려사항이 있습니다. 메모리 최적화를 위해 전체 tensor를 한 번에 로드하지 않고 chunk 단위로 처리하며, FP16이나 BF16으로 계산하여 메모리를 절약합니다. 샘플링 전략도 필요한데, 100B 이상 모델은 전체 weight 비교가 비실용적이므로 layer당 10-20%를 무작위 샘플링하여 추정하고 통계적 신뢰구간을 계산합니다. MoE 모델은 router weight와 expert weight를 분리 분석하고, shared expert와 routed expert를 구분해야 합니다.
 
-| 특성 | 설명 |
-|------|------|
-| **Scale 불변성** | 벡터 크기에 독립적, 방향만 비교 |
-| **고차원 적합성** | 수백만 차원에서도 효율적 계산 |
-| **해석 용이성** | 1에 가까울수록 유사, 0에 가까울수록 다름 |
-| **Normalize 불필요** | 자체적으로 정규화 포함 |
-
-### 값 해석 기준
-
-| Cosine Similarity | 해석 |
-|-------------------|------|
-| **0.99 ~ 1.0** | 거의 동일한 weight (fine-tuning 강력 증거) |
-| **0.90 ~ 0.99** | 높은 유사도 (fine-tuning 또는 같은 initialization) |
-| **0.50 ~ 0.90** | 중간 유사도 (부분적 공유 가능성) |
-| **0.10 ~ 0.50** | 낮은 유사도 (독립적 학습 가능성) |
-| **0.0 ~ 0.10** | 거의 무관 (orthogonal, from scratch 강력 증거) |
-
-### Layer별 패턴 분석
-
-**Fine-tuned 모델의 전형적 패턴:**
-```
-Layer 0 (Embedding):     0.98 ~ 0.99  ← 거의 변화 없음
-Layer 1-5 (초기):        0.95 ~ 0.99  ← 약간의 조정
-Layer 6-20 (중간):       0.85 ~ 0.95  ← 점진적 감소
-Layer 21+ (후기):        0.70 ~ 0.90  ← task-specific 학습
-Output Layer:            0.60 ~ 0.85  ← 가장 많이 변화
-```
-
-**From scratch 모델의 전형적 패턴:**
-```
-모든 Layer:              0.0 ~ 0.3   ← 전체적으로 낮은 유사도
-                                      (random initialization 효과)
-```
-
-### 구현 예시
-
-```python
-import torch
-import torch.nn.functional as F
-
-def cosine_similarity_analysis(model_a, model_b):
-    """두 모델의 layer별 cosine similarity 분석"""
-    results = {}
-
-    params_a = dict(model_a.named_parameters())
-    params_b = dict(model_b.named_parameters())
-
-    for name in params_a:
-        if name in params_b:
-            w_a = params_a[name].data.flatten().float()
-            w_b = params_b[name].data.flatten().float()
-
-            if w_a.shape == w_b.shape:
-                # Cosine similarity 계산
-                sim = F.cosine_similarity(
-                    w_a.unsqueeze(0),
-                    w_b.unsqueeze(0)
-                ).item()
-                results[name] = sim
-
-    return results
-
-def summarize_by_layer_type(results):
-    """Layer 유형별 평균 유사도 요약"""
-    categories = {
-        'embedding': [],
-        'attention': [],
-        'mlp': [],
-        'norm': [],
-        'output': []
-    }
-
-    for name, sim in results.items():
-        if 'embed' in name.lower():
-            categories['embedding'].append(sim)
-        elif 'attn' in name.lower() or 'attention' in name.lower():
-            categories['attention'].append(sim)
-        elif 'mlp' in name.lower() or 'ffn' in name.lower():
-            categories['mlp'].append(sim)
-        elif 'norm' in name.lower():
-            categories['norm'].append(sim)
-        elif 'lm_head' in name.lower() or 'output' in name.lower():
-            categories['output'].append(sim)
-
-    for cat, sims in categories.items():
-        if sims:
-            avg = sum(sims) / len(sims)
-            print(f"{cat}: {avg:.4f} (n={len(sims)})")
-```
-
-### 대규모 모델에서의 실용적 고려사항
-
-1. **메모리 최적화**
-   - 전체 tensor를 한 번에 로드하지 않고 chunk 단위로 처리
-   - FP16/BF16으로 계산하여 메모리 절약
-
-2. **샘플링 전략**
-   - 100B+ 모델은 전체 weight 비교가 비실용적
-   - Layer당 10-20% 무작위 샘플링으로 추정
-   - 통계적 신뢰구간 계산
-
-3. **MoE 모델 특수 처리**
-   - Router weight와 Expert weight 분리 분석
-   - Shared expert vs Routed expert 구분
-
-```python
-def sample_cosine_similarity(w_a, w_b, sample_ratio=0.1):
-    """대규모 tensor를 위한 샘플링 기반 유사도 추정"""
-    n = w_a.numel()
-    sample_size = int(n * sample_ratio)
-
-    indices = torch.randperm(n)[:sample_size]
-
-    sample_a = w_a.flatten()[indices].float()
-    sample_b = w_b.flatten()[indices].float()
-
-    return F.cosine_similarity(
-        sample_a.unsqueeze(0),
-        sample_b.unsqueeze(0)
-    ).item()
-```
-
-### Cosine Similarity의 한계
-
-| 한계점 | 설명 | 보완 방법 |
-|--------|------|----------|
-| **Zero vector 문제** | 0 벡터에서 정의되지 않음 | Zero 체크 후 처리 |
-| **크기 정보 손실** | 방향만 비교, magnitude 무시 | L2 distance 병행 |
-| **고차원 집중** | 고차원에서 값이 중앙으로 수렴 | Layer별 분석으로 보완 |
-| **Outlier 민감도** | 극단값에 영향 받음 | Robust 버전 사용 |
-
-### Solar-Open-100B 검증 적용
-
-Solar-Open-100B의 cosine similarity 분석 시:
-
-1. **비교 대상 모델**
-   - Llama-3 (Dense baseline)
-   - Mixtral (MoE 유사 구조)
-   - DeepSeek-MoE (MoE 비교)
-
-2. **분석 계층**
-   - Embedding layer
-   - Attention (Q, K, V, O projections)
-   - MLP/Expert weights
-   - Router weights (MoE 특화)
-   - Output layer
-
-3. **판정 기준**
-   - 모든 base model과 평균 similarity < 0.3 → from scratch 지지
-   - 특정 모델과 초기 layer similarity > 0.9 → fine-tuning 의심
+Cosine Similarity에도 한계가 있습니다. Zero vector에서는 정의되지 않으므로 zero 체크 후 처리해야 합니다. 방향만 비교하고 magnitude는 무시하므로 L2 distance를 병행하면 좋습니다. 고차원에서 값이 중앙으로 수렴하는 경향이 있어서 layer별 분석으로 보완합니다. 극단값에 영향을 받을 수 있어서 robust 버전을 사용하기도 합니다.
 
 ---
 
@@ -490,88 +108,19 @@ Solar-Open-100B의 cosine similarity 분석 시:
 
 **답변**:
 
-Solar-Open-100B의 tokenizer를 주요 base model들과 비교 분석한 결과입니다.
+Solar-Open-100B의 tokenizer를 주요 base model들과 비교 분석했습니다. 결론부터 말하면, from scratch 학습 주장을 강력히 지지하는 결과입니다.
 
-### Vocabulary 크기 비교
+Solar-Open-100B의 vocabulary 크기는 196,608개입니다. 이를 다른 모델들과 비교해보면 흥미로운 패턴이 드러납니다. 가장 가까운 Qwen2-72B가 152,064개로 Solar보다 29% 작습니다. Llama-3는 128,256개로 Solar보다 53% 작고, DeepSeek-V2는 102,400개로 92% 작습니다. Mixtral-8x7B는 32,000개에 불과해서 Solar보다 514%나 작습니다.
 
-| 모델 | Vocab Size | Tokenizer Type | 비고 |
-|------|-----------|----------------|------|
-| **Solar-Open-100B** | **196,608** | SentencePiece (BPE) | 가장 큼 |
-| Qwen2-72B | 152,064 | BPE | Solar보다 29% 작음 |
-| Llama-3 | 128,256 | tiktoken (BPE) | Solar보다 53% 작음 |
-| DeepSeek-V2 | 102,400 | BPE | Solar보다 92% 작음 |
-| Mixtral-8x7B | 32,000 | SentencePiece | Solar보다 514% 작음 |
+이렇게 큰 차이가 나는 것은 vocabulary를 재사용하지 않고 독립적으로 학습했음을 강력히 시사합니다. 만약 기존 모델을 fine-tuning했다면, vocabulary 크기가 같거나 약간의 special token만 추가된 수준이어야 합니다.
 
-### Special Tokens 비교
+Special token 패턴도 살펴보았습니다. Solar-Open-100B는 `<s>`, `</s>`, `<pad>` 형식을 사용합니다. 이는 SentencePiece의 전통적인 방식입니다. Llama-3는 `<|begin_of_text|>`, `<|end_of_text|>` 같은 새로운 형식을 도입했고, Mixtral은 Solar와 비슷하게 `<s>`, `</s>`를 사용하지만 vocab_size가 6배 이상 차이납니다.
 
-| 모델 | bos_token | eos_token | pad_token |
-|------|-----------|-----------|-----------|
-| **Solar-Open-100B** | `<s>` | `</s>` | `<pad>` |
-| Llama-3 | `<\|begin_of_text\|>` | `<\|end_of_text\|>` | (없음) |
-| Mixtral | `<s>` | `</s>` | (없음) |
+Tokenizer type을 보면, Solar-Open-100B와 Mixtral 모두 SentencePiece BPE를 사용합니다. 하지만 같은 방식을 사용한다고 해서 같은 tokenizer는 아닙니다. Llama-3는 tiktoken BPE라는 다른 구현을 사용합니다.
 
-### 분석 결과
+종합하면, vocabulary 크기가 어떤 주요 base model과도 일치하지 않는다는 점이 가장 결정적입니다. 이 규모의 차이는 vocabulary 확장이나 fine-tuning으로는 설명되지 않습니다. 독립적으로 학습된 tokenizer임이 강력히 시사됩니다.
 
-**1. Vocabulary 크기 분석**
-
-Solar-Open-100B의 vocab_size (196,608)는:
-- 모든 비교 대상 모델보다 **유의미하게 큼**
-- 가장 가까운 Qwen2 (152,064)보다도 44,544개 (약 29%) 더 많음
-- Llama-3 계열 (128,256)과는 68,352개 (약 53%) 차이
-
-이는 vocabulary를 재사용하지 않고 **독립적으로 학습**했음을 강력히 시사합니다.
-
-**2. Special Tokens 패턴**
-
-Solar-Open-100B는 전통적인 `<s>`, `</s>` 형식을 사용:
-- Llama-3의 `<|begin_of_text|>` 스타일과 다름
-- Mixtral과 유사하나, vocab_size가 완전히 다름
-
-**3. Tokenizer Type**
-
-- Solar-Open-100B: SentencePiece BPE
-- Llama-3: tiktoken BPE (다른 구현)
-- 동일한 SentencePiece를 쓰는 Mixtral과도 vocab_size가 6배 이상 차이
-
-### From Scratch 판정
-
-| 지표 | 결과 | 해석 |
-|------|------|------|
-| **Vocab Size 일치** | 0개 모델과 일치 | ✅ From scratch 지지 |
-| **Vocab Size 유사** | 해당 없음 (모두 큰 차이) | ✅ From scratch 지지 |
-| **Special Tokens** | Mixtral과 유사하나 vocab 다름 | ⚠️ 중립 |
-| **Tokenizer Type** | SentencePiece BPE (공통) | ⚠️ 중립 (방식만 공유) |
-
-### 결론
-
-**Tokenizer 분석 결과: From scratch 학습 주장 지지**
-
-- 196,608 크기의 vocabulary는 어떤 주요 base model과도 일치하지 않음
-- Vocabulary 확장이나 fine-tuning으로는 설명되지 않는 규모의 차이
-- 독립적으로 학습된 tokenizer임이 강력히 시사됨
-
-### 추가 검증 필요 사항
-
-더 확실한 결론을 위해:
-1. 실제 vocabulary 토큰 목록을 다운로드하여 중복률 계산
-2. BPE merge rules 순서 비교
-3. 동일 텍스트에 대한 토큰화 결과 비교
-
-```python
-# 검증 코드 예시
-from transformers import AutoTokenizer
-
-solar_tok = AutoTokenizer.from_pretrained("upstage/Solar-Open-100B")
-llama_tok = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-8B")
-
-solar_vocab = set(solar_tok.get_vocab().keys())
-llama_vocab = set(llama_tok.get_vocab().keys())
-
-overlap = len(solar_vocab & llama_vocab)
-overlap_pct = (overlap / len(llama_vocab)) * 100
-print(f"Llama-3과 중복률: {overlap_pct:.2f}%")
-# 예상: 90% 미만 → from scratch 지지
-```
+더 확실한 결론을 위해서는 실제 vocabulary 토큰 목록을 다운로드하여 중복률을 계산하고, BPE merge rules 순서를 비교하며, 동일 텍스트에 대한 토큰화 결과를 비교하는 추가 검증이 필요합니다.
 
 ---
 
@@ -581,108 +130,17 @@ print(f"Llama-3과 중복률: {overlap_pct:.2f}%")
 
 **답변**:
 
-Fine-tuning 의심 증거로 제시되는 세 가지 기준에 대해, 각각 **False Positive**(실제로는 from scratch인데 fine-tuning으로 오판)가 발생할 수 있는 경우를 분석합니다.
+Fine-tuning 의심 증거로 제시되는 기준들에 대해, 실제로는 from scratch인데 fine-tuning으로 오판될 수 있는 경우를 분석해보겠습니다.
 
-### 1. "95% 이상 vocabulary 중복 = Fine-tuning"에 대한 반론
+첫 번째로 "95% 이상 vocabulary 중복 = Fine-tuning"이라는 주장에 대한 반론입니다. 동일한 언어 분포로 학습하면 자연스럽게 유사한 빈도 패턴이 발생합니다. 영어 웹 데이터로 학습하면 독립적으로 학습해도 vocabulary가 비슷해질 수 있습니다. 또한 vocab_size=32k, character_coverage=0.9995 같은 표준 설정을 사용하면 유사한 결과가 나올 수 있습니다. 자연어의 공통 패턴인 접두사, 접미사, 구두점은 어떤 corpus에서도 유사하게 나타나며, 웹 데이터 정규화 파이프라인이 업계에서 표준화되어 있기도 합니다. 실제로 LLaMA와 TigerBot은 독립적으로 학습되었지만 53% vocabulary 중복을 보였습니다. 그러나 95% 이상의 중복은 여전히 의심스러운 수준입니다.
 
-**False Positive 가능 상황:**
+두 번째로 "동일한 Special Token 패턴 = Fine-tuning"이라는 주장에 대한 반론입니다. `<s>`, `</s>`, `<pad>`, `<unk>`는 SentencePiece의 기본값으로 널리 사용됩니다. 기존 도구나 프레임워크와의 호환을 위해 표준 형식을 채택하는 경우가 많습니다. Special token 수가 4-10개 정도로 적어서 우연히 겹칠 확률이 높습니다. Llama-2, Mistral, Solar-Open-100B 모두 `<s>`, `</s>` 형식을 사용하지만, 이것만으로 같은 계열이라고 단정할 수 없습니다. 결론적으로 special token 일치만으로는 fine-tuning을 판단할 수 없고, vocab size와 merge rules를 함께 종합 판단해야 합니다.
 
-| 요인 | 설명 |
-|------|------|
-| **동일 언어 분포** | 영어 웹 데이터로 학습하면 자연스럽게 유사한 빈도 패턴 발생 |
-| **동일 알고리즘 설정** | vocab_size=32k, character_coverage=0.9995 등 표준 설정 사용 시 유사한 결과 |
-| **언어의 통계적 특성** | 자연어의 공통 패턴 (접두사, 접미사, 구두점)은 어떤 corpus에서도 유사 |
-| **표준 전처리** | 웹 데이터 정규화 파이프라인이 업계 표준화됨 |
+세 번째로 "동일한 BPE Merge Rules = Fine-tuning"이라는 주장에 대한 반론입니다. 첫 수백 개 merge는 언어 보편적입니다. 't'+'h'→'th', 'e'+'r'→'er', 'i'+'n'→'in' 같은 패턴은 영어 기반 모델에서 거의 동일하게 나타납니다. 동일한 공개 데이터셋인 Common Crawl이나 Wikipedia를 사용하면 유사한 merge 순서가 나올 수 있습니다. BPE는 결정론적 알고리즘이어서 동일 입력이면 동일 출력이 나옵니다. 따라서 초기 1000개 merge 일치는 큰 의미가 없고, 전체 merge 순서가 일치해야 fine-tuning의 강력한 증거가 됩니다. 특히 후반부 merge가 일치하면 domain-specific하므로 더 강한 증거입니다.
 
-**실제 사례:**
-- **LLaMA vs TigerBot**: 독립적으로 학습되었지만 53% vocabulary 중복
-- **LLaMA (32k) vs ChatGLM (125k)**: 다른 기관, 다른 corpus지만 상당한 토큰 공유
+더 강력한 fine-tuning 증거를 살펴보면, vocab size 완전 일치가 가장 신뢰도가 높습니다. 우연의 일치가 거의 불가능하기 때문입니다. Embedding matrix 일치도 마찬가지로 weight까지 같으면 확실합니다. 전체 merge rules 일치는 순서까지 같으면 동일 tokenizer입니다. 95% 이상 vocabulary 중복은 높지만 false positive 가능성이 있습니다. Special tokens 일치는 업계 관행으로 흔하고, tokenizer type 일치는 SentencePiece나 BPE가 표준이어서 신뢰도가 낮습니다.
 
-**결론**: 독립적으로 학습한 모델도 40-60% 중복은 자연스러움. 다만 **95% 이상**은 여전히 의심스러운 수준.
-
----
-
-### 2. "동일한 Special Token 패턴 = Fine-tuning"에 대한 반론
-
-**False Positive 가능 상황:**
-
-| 요인 | 설명 |
-|------|------|
-| **업계 관행** | `<s>`, `</s>`, `<pad>`, `<unk>`는 SentencePiece 기본값으로 널리 사용 |
-| **호환성 고려** | 기존 도구/프레임워크와의 호환을 위해 표준 형식 채택 |
-| **우연의 일치** | Special token 수가 적어 (4-10개) 겹칠 확률 높음 |
-
-**예시:**
-
-```
-SentencePiece 기본값:
-  - <unk> (ID: 0)
-  - <s>   (ID: 1)
-  - </s>  (ID: 2)
-  - <pad> (선택적)
-```
-
-많은 독립 모델이 이 패턴을 그대로 사용:
-- Llama-2: `<s>`, `</s>`
-- Mistral: `<s>`, `</s>`
-- Solar-Open-100B: `<s>`, `</s>`, `<pad>`
-
-**결론**: Special token 일치만으로는 fine-tuning을 판단할 수 없음. **Vocab size, merge rules와 함께** 종합 판단 필요.
-
----
-
-### 3. "동일한 BPE Merge Rules = Fine-tuning"에 대한 반론
-
-**False Positive 가능 상황:**
-
-| 요인 | 설명 |
-|------|------|
-| **초기 merge 패턴** | 첫 수백 개 merge는 언어 보편적 (공백, 구두점, 고빈도 문자쌍) |
-| **동일 corpus** | 동일한 공개 데이터셋 (Common Crawl, Wikipedia) 사용 시 유사한 merge 순서 |
-| **알고리즘 결정론** | BPE는 결정론적, 동일 입력이면 동일 출력 |
-
-**분석:**
-
-```
-일반적인 BPE 초기 merge 예시 (언어 공통):
-1. 't' + 'h' → 'th'
-2. 'e' + 'r' → 'er'
-3. 'i' + 'n' → 'in'
-4. ' ' + 't' → ' t'
-...
-```
-
-이러한 초기 패턴은 영어 기반 모델에서 거의 동일하게 나타남.
-
-**결론**:
-- **초기 1000개 merge** 일치: 큰 의미 없음 (언어 보편적)
-- **전체 merge 순서** 일치: Fine-tuning 강력 증거
-- **후반부 merge** 일치: Domain-specific, 더 강한 증거
-
----
-
-### 종합: 더 강력한 Fine-tuning 증거는?
-
-| 증거 | 신뢰도 | 이유 |
-|------|--------|------|
-| Vocab size 완전 일치 | ⭐⭐⭐⭐⭐ | 우연 일치 거의 불가능 |
-| Embedding matrix 일치 | ⭐⭐⭐⭐⭐ | Weight까지 같으면 확실 |
-| 전체 merge rules 일치 | ⭐⭐⭐⭐ | 순서까지 같으면 동일 tokenizer |
-| 95%+ vocabulary 중복 | ⭐⭐⭐ | 높지만 false positive 가능 |
-| Special tokens 일치 | ⭐⭐ | 업계 관행으로 흔함 |
-| Tokenizer type 일치 | ⭐ | SentencePiece/BPE는 표준 |
-
-### Solar-Open-100B에 적용
-
-Solar-Open-100B의 경우:
-
-| 지표 | 결과 | Fine-tuning 가능성 |
-|------|------|-------------------|
-| **Vocab size** | 196,608 (어떤 모델과도 불일치) | ❌ 낮음 |
-| **Special tokens** | `<s>`, `</s>` (Mixtral과 유사) | ⚠️ 중립 |
-| **Vocab size 차이** | 가장 가까운 Qwen2보다 29% 큼 | ❌ 낮음 |
-
-**결론**: 반론을 고려하더라도, Solar-Open-100B의 vocab_size (196,608)가 모든 비교 대상과 크게 다른 점은 여전히 **from scratch의 강력한 증거**.
+Solar-Open-100B의 경우를 보면, vocab_size가 196,608로 어떤 모델과도 불일치하므로 fine-tuning 가능성이 낮습니다. Special tokens는 Mixtral과 유사하지만 이는 중립적 증거입니다. 가장 가까운 Qwen2보다도 29% 큰 vocab_size 차이가 있습니다. 반론을 고려하더라도 Solar-Open-100B의 vocab_size가 모든 비교 대상과 크게 다른 점은 여전히 from scratch의 강력한 증거입니다.
 
 ---
 
@@ -692,81 +150,21 @@ Solar-Open-100B의 경우:
 
 **답변**:
 
-Weight 분석을 수행하기 전에, 먼저 architecture 비교를 통해 **weight 비교가 가능한지** 확인해야 합니다. Weight 비교는 동일한 shape의 tensor 간에만 의미가 있기 때문입니다.
+Weight 분석을 수행하기 전에 먼저 architecture 비교를 통해 weight 비교가 가능한지 확인해야 합니다. Weight 비교는 동일한 shape의 tensor 간에만 의미가 있기 때문입니다.
 
-### Architecture 비교 결과
+Solar-Open-100B의 architecture를 다른 MoE 모델들과 비교해보면 흥미로운 결과가 나옵니다. hidden_size는 Solar가 4,096으로 Mixtral과 동일하지만, DeepSeek-V2는 5,120이고 Qwen2-57B는 3,584입니다. num_hidden_layers는 Solar가 48개인데, Mixtral은 32개, DeepSeek은 60개, Qwen2는 28개로 모두 다릅니다. num_attention_heads는 Solar가 64개로 Mixtral의 32개, DeepSeek의 128개, Qwen2의 28개와 모두 다릅니다.
 
-| 파라미터 | Solar-Open-100B | Mixtral-8x7B | DeepSeek-V2 | Qwen2-57B |
-|----------|-----------------|--------------|-------------|-----------|
-| **hidden_size** | 4,096 | 4,096 | 5,120 | 3,584 |
-| **num_hidden_layers** | 48 | 32 | 60 | 28 |
-| **num_attention_heads** | 64 | 32 | 128 | 28 |
-| **num_key_value_heads** | 8 | 8 | 128 | 4 |
-| **intermediate_size** | 10,240 | 14,336 | 12,288 | 18,944 |
-| **n_routed_experts** | 128 | 8 | 160 | 64 |
-| **n_shared_experts** | 1 | 0 | 2 | - |
-| **num_experts_per_tok** | 8 | 2 | 6 | 8 |
-| **vocab_size** | 196,608 | 32,000 | 102,400 | 151,936 |
-| **rope_theta** | 1,000,000 | 1,000,000 | 10,000 | 1,000,000 |
+가장 중요한 MoE 관련 파라미터를 보면, n_routed_experts는 Solar가 128개, Mixtral이 8개, DeepSeek이 160개, Qwen2가 64개입니다. n_shared_experts는 Solar가 1개, Mixtral은 0개, DeepSeek은 2개입니다. num_experts_per_tok는 Solar가 8개, Mixtral이 2개, DeepSeek이 6개, Qwen2가 8개입니다.
 
-### Weight 비교 가능성 판정
+이런 차이 때문에 어떤 모델과도 weight 비교가 불가능합니다. Mixtral과는 hidden_size가 동일하지만 layer 수와 expert 수가 다릅니다. DeepSeek-V2, Qwen2-57B와는 hidden_size부터 다릅니다.
 
-| 비교 대상 | hidden_size | layers | experts | 비교 가능? |
-|-----------|-------------|--------|---------|-----------|
-| **Mixtral-8x7B** | ✅ 동일 (4096) | ❌ 다름 (48 vs 32) | ❌ 다름 (128 vs 8) | ❌ 불가 |
-| **DeepSeek-V2** | ❌ 다름 (4096 vs 5120) | ❌ 다름 | ❌ 다름 | ❌ 불가 |
-| **Qwen2-57B** | ❌ 다름 (4096 vs 3584) | ❌ 다름 | ❌ 다름 | ❌ 불가 |
+구체적으로 보면, Embedding Layer는 Solar가 [196,608, 4,096] shape인데 Mixtral은 [32,000, 4,096], DeepSeek은 [102,400, 5,120], Qwen2는 [151,936, 3,584]입니다. vocab_size와 hidden_size가 모두 다르므로 embedding weight 비교가 불가능합니다. Attention Layer도 마찬가지로 Q, K, V projection matrix shape가 모두 다릅니다. MoE Layer 역시 expert 수와 intermediate_size가 모두 다릅니다.
 
-### 분석
+Weight 비교가 불가능하다는 사실 자체가 from scratch의 증거입니다. Fine-tuning된 모델이라면 base model과 동일한 architecture를 가져야 합니다. Solar-Open-100B는 어떤 기존 MoE 모델과도 architecture가 일치하지 않습니다. 48 layers, 128+1 experts, 196k vocab이라는 고유한 구성을 가지고 있습니다.
 
-**1. Embedding Layer 비교 불가**
-```
-Solar-Open-100B: [196,608, 4,096]
-Mixtral-8x7B:    [32,000, 4,096]
-DeepSeek-V2:     [102,400, 5,120]
-Qwen2-57B:       [151,936, 3,584]
-```
-vocab_size와 hidden_size가 모두 다르므로 embedding weight 비교 불가.
+특히 129개 expert 구성이 독특합니다. 128개의 routed expert와 1개의 shared expert를 사용하는 이 구성은 다른 모델에서 볼 수 없습니다. moe_intermediate_size도 1,280으로 가장 작습니다. Layer 수 48도 Mixtral의 32와 DeepSeek의 60 사이이지만, 정확히 중간값이 아닙니다.
 
-**2. Attention Layer 비교 불가**
-- Solar: 64 heads, 8 KV heads
-- Mixtral: 32 heads, 8 KV heads
-- DeepSeek: 128 heads, 128 KV heads
-
-Q, K, V projection matrix shape가 모두 다름.
-
-**3. MoE Layer 비교 불가**
-- Solar: 128 routed experts + 1 shared
-- Mixtral: 8 experts
-- DeepSeek: 160 routed + 2 shared
-
-Expert 수와 intermediate_size가 모두 다름.
-
-### 결론
-
-**Weight 비교가 불가능하며, 이 자체가 from scratch 증거**
-
-| 판정 | 결과 |
-|------|------|
-| **Architecture 일치 모델** | 0개 |
-| **부분 일치 모델** | 0개 (hidden_size만 Mixtral과 동일) |
-| **Weight 비교 가능 모델** | 0개 |
-
-Fine-tuning된 모델이라면 base model과 **동일한 architecture**를 가져야 합니다. Solar-Open-100B는:
-
-1. 어떤 기존 MoE 모델과도 architecture가 일치하지 않음
-2. 고유한 구성: 48 layers, 128+1 experts, 196k vocab
-3. 특히 **129개 expert (128 routed + 1 shared)** 구성은 독특함
-
-이는 **from scratch 학습의 강력한 증거**입니다.
-
-### 추가 참고: 고유한 Architecture 특징
-
-Solar-Open-100B만의 특징:
-- **Expert 수**: 129개 (다른 모델: 8~160)
-- **Shared expert**: 1개 (명시적 shared expert 사용)
-- **moe_intermediate_size**: 1,280 (가장 작음)
-- **Layer 수**: 48 (Mixtral 32, DeepSeek 60의 중간값이 아님)
+결론적으로 architecture가 완전히 다르기 때문에 weight 비교는 불필요하며, 이 자체가 from scratch 학습의 강력한 증거입니다.
 
 ---
 
@@ -776,108 +174,21 @@ Solar-Open-100B만의 특징:
 
 **답변**:
 
-Solar-Open-100B에 대한 행동 분석을 진행하던 중, 2026년 1월 초 한국에서 발생한 **표절 논란**과 **공개 검증 세션**에 대한 정보를 발견했습니다. 이는 "from scratch" 검증에 매우 중요한 정보입니다.
+Solar-Open-100B에 대한 행동 분석을 진행하던 중, 2026년 1월 초 한국에서 발생한 표절 논란과 공개 검증 세션에 대한 정보를 발견했습니다. 이는 from scratch 검증에 매우 중요한 정보입니다.
 
-### 표절 논란 발생 (2026-01-01)
+2026년 1월 1일, Sionic AI CEO 고석현이 LinkedIn과 GitHub에 기술 분석을 게시하며 논란이 시작되었습니다. 그의 주장은 Solar-Open-100B와 Zhipu AI의 GLM-4.5-Air 간에 LayerNorm weight의 cosine similarity가 96.8%라는 것이었습니다. 또한 GLM 스타일 config 코드와 Zhipu AI 라이선스 참조가 발견되었다고 주장했습니다. 그의 결론은 Solar가 fine-tuned 모델이며 국가 AI 프로젝트 규정을 위반했을 가능성이 있다는 것이었습니다.
 
-Sionic AI CEO 고석현이 LinkedIn과 GitHub에 기술 분석을 게시하며 다음을 주장:
+Zhipu AI의 GLM-4.5-Air와 Solar-Open-100B를 비교해보면 놀라운 유사점이 있습니다. 총 파라미터는 GLM이 106B, Solar가 102.6B입니다. 활성 파라미터는 둘 다 12B입니다. Architecture는 둘 다 MoE이고, Context Length도 둘 다 128K입니다. 다만 GLM-4.5-Air의 상세 config는 비공개입니다.
 
-| 주장 | 내용 |
-|------|------|
-| **LayerNorm 유사도** | Solar-Open-100B와 Zhipu AI GLM-4.5-Air 간 96.8% cosine similarity |
-| **코드 흔적** | GLM 스타일 config 코드 및 Zhipu AI 라이선스 참조 발견 |
-| **결론** | Fine-tuning된 모델로 의심, 국가 AI 프로젝트 규정 위반 가능성 |
+Upstage는 2026년 1월 2일 서울 강남 사무실에서 공개 검증 세션을 개최하여 대응했습니다. 이 자리에서 training checkpoints, WandB 실험 로그, 중간 산출물, 전체 학습 히스토리를 공개했습니다. Upstage의 주장은 random initialization에서 시작하여 처음부터 학습했으며, 중국 모델 가중치를 재사용하지 않았다는 것이었습니다. 코드 내 중국어 저작권 표시는 실수라고 설명했습니다.
 
-### Zhipu AI GLM-4.5-Air란?
+이틀 뒤인 1월 3일, 고석현 CEO는 부분 사과를 발표하며 성급한 판단이었음을 인정했습니다.
 
-| 항목 | GLM-4.5-Air | Solar-Open-100B |
-|------|-------------|-----------------|
-| **총 파라미터** | 106B | 102.6B |
-| **활성 파라미터** | 12B | 12B |
-| **Architecture** | MoE | MoE |
-| **Context Length** | 128K | 128K |
-| **상세 config** | 비공개 | 공개 (HuggingFace) |
+그러나 LayerNorm 96.8% 유사도 의혹은 여전히 설명이 필요했습니다. 이에 대해 hyunwoongko가 GitHub에서 독립 검증을 수행했습니다. 그 결과 LayerNorm 96.8% 유사도 주장이 방법론적 오류였음이 밝혀졌습니다. 같은 모델의 다른 레이어 간에도 0.99 수준의 cosine similarity가 나타났습니다. 이는 LayerNorm weight가 1.0으로 초기화되어 방향적 일관성을 유지하기 때문입니다. 평균 오프셋을 제거한 centered cosine 분석을 하면 모델 간 유사도가 거의 0으로 하락했습니다. Solar가 GLM보다 Phi-3.5-MoE에 더 가깝다는 증거도 없었습니다. 결론적으로 LayerNorm 비교는 모델 기원 판별에 부적합하며, 원래 주장은 초기화 편향에 의한 false positive였습니다.
 
-두 모델의 파라미터 규모와 활성 파라미터가 매우 유사합니다.
+행동 분석의 한계도 있습니다. Knowledge cutoff가 공식적으로 공개되지 않아 직접 비교가 어렵습니다. Safety alignment 정보도 미공개여서 refusal pattern 분석이 제한적입니다. 직접 실행 환경이 없어 출력 스타일 비교도 제한적입니다. GLM-4.5-Air config가 미공개여서 LayerNorm 유사도를 직접 확인할 수도 없습니다.
 
-### Upstage 공개 검증 세션 (2026-01-02)
-
-Upstage는 서울 강남 사무실에서 공개 검증 세션을 개최:
-
-**공개된 증거:**
-1. **Training Checkpoints** - 학습 과정의 중간 체크포인트
-2. **WandB 실험 로그** - 학습 과정 전체 기록
-3. **중간 산출물(Artifacts)** - 학습 중 생성된 데이터
-4. **전체 학습 히스토리** - 처음부터 끝까지의 기록
-
-**Upstage 주장:**
-- Random initialization에서 시작하여 처음부터 학습
-- 중국 모델 가중치 재사용 없음
-- 코드 내 중국어 저작권 표시는 실수
-
-### 검증 결과
-
-| 항목 | 결과 |
-|------|------|
-| **검증 방식** | 공개 세션, 외부 전문가 초청 |
-| **제시된 증거** | Training logs, checkpoints, WandB logs |
-| **결과** | From scratch 학습 주장 유지 |
-| **고석현 대응** | 2026-01-03 부분 사과 (성급한 판단 인정) |
-
-### Knowledge Cutoff 비교
-
-| 모델 | Knowledge Cutoff | 학습 데이터 |
-|------|-----------------|-------------|
-| **Solar-Open-100B** | 미공개 | 19.7T tokens (미공개 데이터셋) |
-| **Llama-3** | 2023년 12월 | 15T+ tokens |
-| **Mixtral-8x7B** | 미공개 (추정 2023년 10월) | 미공개 |
-| **GLM-4.5-Air** | 미공개 | 미공개 |
-
-Solar-Open-100B의 knowledge cutoff가 공식적으로 공개되지 않아 직접 비교가 어렵습니다.
-
-### 행동 분석의 한계
-
-| 분석 항목 | 가능 여부 | 이유 |
-|----------|----------|------|
-| Knowledge Cutoff 테스트 | ⚠️ 제한적 | 공식 cutoff 미공개 |
-| Refusal Pattern 분석 | ⚠️ 제한적 | Safety alignment 정보 미공개 |
-| 출력 스타일 비교 | ⚠️ 제한적 | 직접 실행 환경 없음 |
-| LayerNorm 유사도 확인 | ❌ 미검증 | GLM-4.5-Air config 미공개 |
-
-### 행동 분석 결론
-
-| 판정 | 결과 |
-|------|------|
-| **표절 의혹** | 제기됨 (LayerNorm 96.8% 유사도) |
-| **Upstage 대응** | 공개 검증 세션 + 증거 제시 |
-| **현재 상태** | From scratch 주장 유지, 논란은 일단락 |
-| **추가 검증 필요** | GLM-4.5-Air config 공개 시 architecture 비교 가능 |
-
-### 종합 판단
-
-**긍정적 요소 (From scratch 지지):**
-- Upstage가 training logs, checkpoints 등 증거 공개
-- 외부 전문가 초청 공개 검증 진행
-- 고석현 CEO 부분 사과
-
-**주의 요소:**
-- ~~LayerNorm 96.8% 유사도는 여전히 설명 필요~~ → **독립 검증으로 해소** (아래 참조)
-- GLM-4.5-Air와의 상세 architecture 비교 불가 (config 미공개)
-
-### LayerNorm 유사도 의혹 독립 검증 (2026-01-05 추가)
-
-[hyunwoongko의 검증](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)에서 LayerNorm 96.8% 유사도 주장이 **방법론적 오류**였음이 밝혀졌습니다:
-
-| 발견 | 설명 |
-|------|------|
-| **동일 모델 내 유사도** | 같은 모델의 다른 레이어 간에도 0.99 수준 cosine similarity |
-| **초기화 특성** | LayerNorm weight가 1.0으로 초기화되어 방향적 일관성 유지 |
-| **Centered cosine 분석** | 평균 오프셋 제거 시 모델 간 유사도가 **거의 0으로 하락** |
-| **Phi-3.5-MoE 비교** | Solar가 GLM보다 Phi에 더 가깝다는 증거도 없음 |
-
-**결론: LayerNorm 비교는 모델 기원 판별에 부적합. 원래 주장은 초기화 편향에 의한 false positive.**
-
-**최종 결론: 행동 분석과 독립 검증을 종합하면, From scratch 주장은 신뢰할 수 있음.**
+종합하면, Upstage가 training logs와 checkpoints 등 증거를 공개했고, 외부 전문가를 초청한 공개 검증을 진행했으며, 고석현 CEO가 부분 사과했습니다. 독립 검증에서 LayerNorm 유사도 주장이 방법론적 오류로 밝혀졌습니다. 행동 분석과 독립 검증을 종합하면, from scratch 주장은 신뢰할 수 있습니다.
 
 ---
 
@@ -887,67 +198,17 @@ Solar-Open-100B의 knowledge cutoff가 공식적으로 공개되지 않아 직�
 
 **답변**:
 
-NAVER Cloud의 HyperCLOVAX-SEED-Think-32B를 분석한 결과, **부분적 from scratch + 컴포넌트 재사용 혼합** 구조로 확인되었습니다.
+NAVER Cloud의 HyperCLOVAX-SEED-Think-32B를 분석한 결과, 완전한 from scratch라기보다는 부분적 from scratch와 컴포넌트 재사용이 혼합된 구조로 확인되었습니다.
 
-### 모델 구조
+이 모델은 VLM(Vision-Language Model)으로 세 가지 컴포넌트로 구성됩니다. Vision Encoder, Text Decoder, 그리고 Projector입니다.
 
-HyperCLOVAX-SEED-Think-32B는 **VLM(Vision-Language Model)**으로 세 가지 컴포넌트로 구성됩니다:
+가장 명확한 발견은 Vision Encoder가 Qwen2.5 ViT를 재사용한다는 것입니다. config.json에 `"model_type": "qwen2_5_vl"`이 명시되어 있습니다. 따라서 Vision 부분은 from scratch가 아닙니다.
 
-| 컴포넌트 | 모델 타입 | From scratch 여부 |
-|----------|----------|-------------------|
-| **Vision Encoder** | Qwen2.5 ViT | ❌ 재사용 |
-| **Text Decoder** | HyperCLOVAX | ⚠️ 추가 검증 필요 |
-| **Projector** | Linear | - |
+Tokenizer에 대해서는 흥미로운 발견이 있었습니다. HyperCLOVAX-SEED의 vocab_size는 128,256개입니다. Llama 3/3.1은 128,000개로 256 토큰 차이가 납니다. 처음에는 Llama 3 tokenizer를 재사용했다고 생각할 수 있지만, 정확히 일치하지 않습니다. Trillion-7B도 128,256개로 동일한 vocab 설계를 사용합니다. Trillion-7B 논문에 따르면 이 128,256 vocab은 약 100k 영어와 약 24.5k 한국어로 구성된 한국어 최적화 설계입니다. 단순히 Llama 3 tokenizer를 재사용한 것이 아닐 가능성이 있습니다. 다만 HyperCLOVA X 논문에서 언급된 100k vocab에서 SEED 버전의 128k vocab으로 변경된 이유가 공식 문서화되지 않아 완전한 결론은 어렵습니다.
 
-### 주요 발견
+Text Decoder의 architecture를 보면 고유한 요소가 있습니다. model_type이 "hyperclovax"로 독자적입니다. hidden_size는 5,120으로 Llama 3.1 70B의 약 8,192나 Qwen2.5-72B의 12,288과 다릅니다. num_layers는 72개로 Llama와 Qwen의 80개와 다릅니다. num_heads는 40개로 역시 다릅니다. 특히 주목할 점은 rope_theta가 50,000,000이라는 것입니다. Llama 3.1은 500,000, Qwen2.5는 1,000,000인데, HyperCLOVAX는 50M으로 다른 모델에서 볼 수 없는 고유값입니다.
 
-**1. Vision Encoder - Qwen2.5 ViT 재사용**
-
-config.json에 `"model_type": "qwen2_5_vl"` 명시. Vision 부분은 from scratch가 아닙니다.
-
-**2. Tokenizer - vocab_size 크로스 체크 결과 (2026-01-05 추가 검증)**
-
-| 모델 | vocab_size | 비고 |
-|------|-----------|------|
-| HyperCLOVAX-SEED | 128,256 | config.json 확인 |
-| Llama 3/3.1 | 128,000 | **256 토큰 차이** |
-| Trillion-7B | 128,256 | 동일 vocab 설계 |
-| HyperCLOVA X (논문) | 100,000 | "SEED" 버전과 28,256 차이 |
-
-**핵심 발견:**
-- Llama 3 (128,000)와 HyperCLOVAX-SEED (128,256)는 **정확히 일치하지 않음** (256 차이)
-- Trillion-7B 논문에 따르면 128,256 vocab 구성: ~100k 영어 + ~24.5k 한국어
-- 단순 "Llama 3 tokenizer 재사용"이 아닌, **한국어 최적화를 위한 독자 설계**로 보임
-
-**3. Text Decoder Architecture - 고유 요소 존재**
-
-| 파라미터 | HyperCLOVAX-SEED | Llama 3.1 70B | Qwen2.5-72B |
-|----------|------------------|---------------|-------------|
-| model_type | hyperclovax | llama | qwen2 |
-| hidden_size | 5,120 | ~8,192 | 12,288 |
-| num_layers | 72 | 80 | 80 |
-| num_heads | 40 | 64 | 128 |
-| rope_theta | 50,000,000 | 500,000 | 1,000,000 |
-
-`rope_theta: 50M`은 다른 모델에서 볼 수 없는 고유값입니다.
-
-### 판정
-
-| 컴포넌트 | 결과 | 근거 |
-|----------|------|------|
-| Vision Encoder | ❌ From scratch 아님 | Qwen2.5 ViT 명시적 사용 |
-| Tokenizer | ⚠️ 재해석 필요 | Llama 3와 256 차이, 한국어 최적화 설계로 보임 |
-| Text Decoder | ⚠️ 조건부 지지 | Architecture는 고유하나 추가 검증 필요 |
-
-### 결론
-
-**완전한 from scratch라고 보기 어려움 (단, Tokenizer는 재해석 필요)**
-
-Vision Encoder가 Qwen2.5 ViT를 그대로 사용한다는 점이 config.json에 명시되어 있습니다. 이는 VLM에서 Vision 부분은 재사용했음을 의미합니다.
-
-Tokenizer에 대해서는 추가 검증 결과, vocab_size 128,256이 Llama 3 (128,000)와 **256 토큰 차이**가 있음이 확인되었습니다. Trillion-7B 논문에 따르면 이 vocab 크기는 한국어 최적화를 위한 독자 설계로 보이며, 단순한 Llama 3 tokenizer 재사용이 아닐 가능성이 있습니다. 다만, HyperCLOVA X (100k)에서 SEED (128k)로의 변경 이유가 공식 문서화되지 않아 완전한 결론은 어렵습니다.
-
-상세 분석: 각 분석 문서(01-04)의 "모델별 검증 결과" 섹션 참조
+결론적으로 완전한 from scratch라고 보기 어렵습니다. Vision Encoder가 Qwen2.5 ViT를 그대로 사용한다는 점이 config.json에 명시되어 있어서, VLM에서 Vision 부분은 확실히 재사용했습니다. Tokenizer에 대해서는 Llama 3와 256 토큰 차이가 있어 단순 재사용이 아닐 수 있지만, 추가 검증이 필요합니다. Text Decoder는 architecture가 고유하지만 이것만으로 from scratch를 확정하기 어렵습니다.
 
 ---
 
@@ -959,77 +220,19 @@ Tokenizer에 대해서는 추가 검증 결과, vocab_size 128,256이 Llama 3 (1
 
 vocab_size가 우연히 일치할 가능성에 대해 분석해 보겠습니다.
 
-### 1. 가능한 vocab_size 범위
+실제 LLM들이 사용하는 vocab_size 분포를 보면, Llama 2와 Mixtral은 32,000개를 사용하고, GPT-2나 RoBERTa는 50,000에서 65,000 사이를 사용합니다. Qwen이나 DeepSeek은 100,000에서 150,000 사이이고, Solar나 K-EXAONE은 150,000에서 200,000 사이입니다. 이론적으로 가능한 값은 수천에서 수십만까지 연속적으로 선택할 수 있습니다.
 
-실제 LLM들이 사용하는 vocab_size 분포:
+vocab_size를 결정하는 요인은 학습 corpus의 언어 분포, character_coverage 설정, 목표 vocab_size 설정, 그리고 BPE나 SentencePiece 알고리즘의 결과입니다. 독립적으로 학습하면 다른 corpus를 사용하므로 다른 token 빈도 분포가 나오고, 다른 설정을 사용하면 다른 최종 vocab_size가 나옵니다. 정확히 같은 숫자가 나올 확률은 극히 낮습니다.
 
-| 범위 | 예시 모델 | 비고 |
-|------|----------|------|
-| 32,000 | Llama 2, Mixtral | 초기 표준 |
-| 50,000~65,000 | GPT-2, RoBERTa | 영어 중심 |
-| 100,000~150,000 | Qwen, DeepSeek | 다국어 |
-| 150,000~200,000 | Solar, K-EXAONE | 대규모 다국어 |
+"비슷한 숫자"와 "정확히 같은 숫자"는 의미가 다릅니다. 128,000과 128,256처럼 256 차이가 나면 독립 설계 가능성이 있습니다. 152,064와 153,600처럼 1,536 차이가 나도 마찬가지입니다. 하지만 128,256과 128,256처럼 정확히 0 차이면 동일 tokenizer 사용을 강력히 의심해야 합니다.
 
-**이론적으로 가능한 값**: 수천~수십만 (연속적 선택 가능)
+이 프로젝트에서 검증한 5개 모델을 보면, Solar-Open-100B는 196,608개로 일치하는 모델이 없습니다. A.X-K1은 163,840개, K-EXAONE은 153,600개, VAETKI는 137,216개로 모두 일치하는 모델이 없습니다. HyperCLOVAX-SEED만 128,256개로 Trillion-7B와 일치합니다. 5개 중 4개가 모든 기존 모델과 불일치하는 것은 독립 설계 시 불일치가 정상적인 결과임을 보여줍니다.
 
-### 2. 왜 "정확히 일치"가 의심스러운가
+물론 vocab_size 단독으로는 판단이 불충분합니다. 실제 vocabulary 내용을 비교하여 token 중복률을 계산해야 하고, BPE merge rules의 순서까지 같은지 확인해야 합니다. 고유한 special token 패턴도 살펴봐야 합니다.
 
-```
-vocab_size를 결정하는 요인:
-1. 학습 corpus의 언어 분포
-2. character_coverage 설정 (예: 0.9995)
-3. 목표 vocab_size 설정
-4. BPE/SentencePiece 알고리즘 결과
-```
+결론적으로 vocab_size가 정확히 일치하면 우연의 일치 확률은 0.01% 미만입니다. 연속 변수에서 정확히 같은 값이 나올 확률이 그만큼 낮기 때문입니다. 이는 "같은 tokenizer 사용" 또는 "의도적으로 맞춤"의 강력한 증거입니다. 반면 비슷하지만 다르면 독립 설계 가능성이 열려 있고, 추가 검증이 필요합니다.
 
-**독립적으로 학습하면**:
-- 다른 corpus → 다른 token 빈도 분포
-- 다른 설정 → 다른 최종 vocab_size
-- 정확히 같은 숫자가 나올 확률 **극히 낮음**
-
-### 3. "비슷한 숫자" vs "정확히 같은 숫자"
-
-| 상황 | 해석 |
-|------|------|
-| 128,000 vs 128,256 (256 차이) | 독립 설계 가능성 있음 |
-| 152,064 vs 153,600 (1,536 차이) | 독립 설계 가능성 있음 |
-| **128,256 vs 128,256 (0 차이)** | 동일 tokenizer 사용 강력 의심 |
-
-### 4. 실제 사례로 보는 증거
-
-이 프로젝트에서 검증한 5개 모델:
-
-| 모델 | vocab_size | 일치 모델 |
-|------|-----------|----------|
-| Solar-Open-100B | 196,608 | 없음 |
-| A.X-K1 | 163,840 | 없음 |
-| K-EXAONE | 153,600 | 없음 |
-| VAETKI | 137,216 | 없음 |
-| HyperCLOVAX-SEED | 128,256 | Trillion-7B와 일치 |
-
-**5개 중 4개**가 모든 기존 모델과 불일치 → 독립 설계 시 불일치가 **정상**
-
-### 5. vocab_size 단독으로는 불충분한 이유
-
-vocab_size만으로 판단하면 안 됩니다:
-
-| 추가 검증 | 설명 |
-|----------|------|
-| **Token 중복률** | 실제 vocabulary 내용 비교 |
-| **BPE merge rules** | merge 순서까지 같으면 동일 tokenizer |
-| **Special tokens** | 고유 토큰 패턴 |
-
-### 결론
-
-vocab_size가 **정확히 일치**하면:
-- 우연의 일치 확률 < 0.01% (연속 변수에서 정확히 같은 값)
-- "같은 tokenizer 사용" 또는 "의도적으로 맞춤"의 강력한 증거
-
-vocab_size가 **비슷하지만 다르면**:
-- 독립 설계 가능성 열려 있음
-- 추가 검증(token 중복률, merge rules) 필요
-
-이 프로젝트에서 vocab_size를 중요하게 보는 이유는, **정확히 일치하는 경우가 없어야 from scratch의 기본 조건**이 충족되기 때문입니다. HyperCLOVAX-SEED의 경우 Llama 3와 256 차이가 나서 "단순 재사용이 아닐 수 있다"고 재해석한 것도 이 논리입니다.
+이 프로젝트에서 vocab_size를 중요하게 보는 이유는, 정확히 일치하는 경우가 없어야 from scratch의 기본 조건이 충족되기 때문입니다. HyperCLOVAX-SEED의 경우 Llama 3와 256 차이가 나서 "단순 재사용이 아닐 수 있다"고 재해석한 것도 이 논리입니다.
 
 ---
 
@@ -1039,76 +242,41 @@ vocab_size가 **비슷하지만 다르면**:
 
 **답변**:
 
-"vocab_size나 config dimension 비교만으로는 불충분하고, 실제 토큰 중복률이나 weight 값 비교가 더 중요하다"는 의견이 제기되었습니다. 이에 대해 학술 연구를 조사한 결과입니다.
+"vocab_size나 config dimension 비교만으로는 불충분하고, 실제 토큰 중복률이나 weight 값 비교가 더 중요하다"는 의견이 제기되었습니다. 이에 대해 학술 연구를 조사한 결과를 공유합니다.
 
-### 1. 학술적으로 가장 신뢰할 수 있는 검증 방법
+학술적으로 가장 신뢰할 수 있는 검증 방법은 무엇일까요? arXiv:2502.00706v1에 발표된 "Model Provenance Testing for Large Language Models" 논문에 따르면, 600개 이상의 모델에서 검증된 결과 출력 행동 기반 통계 분석이 가장 신뢰할 수 있는 방법입니다. 동일 프롬프트에 대한 출력 토큰 일치율을 통계 분석하는 black-box output similarity 방법이 90-95% precision과 80-90% recall을 달성했습니다. Config 비교는 불충분한데, fine-tuning은 architecture를 보존하기 때문입니다. Weight 비교는 유효하지만 white-box 접근이 필요합니다.
 
-**[Model Provenance Testing for Large Language Models](https://arxiv.org/html/2502.00706v1)** (arXiv:2502.00706v1)에 따르면:
+Config나 dimension 비교에는 한계가 있습니다. config.json 비교의 한계는 fine-tuning이 architecture를 보존하므로 동일한 dimension을 가진 모델이 파생작일 수 있다는 점입니다. vocab_size 비교의 경우, fine-tuning 시 tokenizer를 그대로 사용하므로 vocab_size 일치가 오히려 파생 증거가 될 수 있습니다.
 
-| 방법 | 설명 | 정확도 |
-|------|------|--------|
-| **Black-box Output Similarity** | 동일 프롬프트에 대한 출력 토큰 일치율 통계 분석 | 90-95% precision, 80-90% recall |
-| Config 비교 | hidden_size, num_layers 등 | 불충분 (fine-tuning은 architecture 보존) |
-| Weight 비교 | Cosine similarity 등 | 유효하나 white-box 접근 필요 |
+그렇다면 현재 프로젝트 방법론의 유효성은 어떨까요? 현재 프로젝트의 로직은 "vocab_size가 불일치하면 from scratch 지지"입니다. vocab_size가 다르면 tokenizer 재학습이 필요하므로 from scratch의 강력한 증거가 됩니다. 이 로직은 유효합니다. 반면 vocab_size가 같으면 추가 검증이 필요한데, token 중복률과 merge rules를 분석해야 합니다. 따라서 vocab_size 불일치를 기반으로 한 Solar, A.X-K1, VAETKI, K-EXAONE의 판정은 여전히 유효합니다. HyperCLOVAX처럼 vocab_size가 유사한 경우에는 실제 토큰 중복률 분석이 추가로 필요합니다.
 
-**핵심 발견**: 600+ 모델에서 검증된 결과, **출력 행동 기반 통계 분석**이 가장 신뢰할 수 있는 방법.
+Yi-Llama 논란 사례도 참고할 만합니다. 01.AI의 Yi-34B 모델이 Meta Llama에서 파생되었다는 의혹이 있었습니다. Architecture가 Llama와 동일한 구조였고, tensor names도 Llama 형식을 그대로 사용했습니다. 01.AI는 이를 "oversight(실수)"라고 인정했습니다. 하지만 weight 복사 증거는 없었고 독립 학습 주장을 유지했습니다. EleutherAI의 분석에 따르면, Yi는 독립적으로 학습되었으며 Llama architecture 채택은 업계 표준 관행입니다.
 
-### 2. Config/Dimension 비교의 한계
+방법론 개선 방향을 정리하면, vocab_size 비교에 실제 토큰 중복률 계산을 추가하고, config dimension 비교에 출력 행동 유사도 분석을 추가하면 됩니다. Architecture 비교는 유효한데, architecture가 다르면 weight 재사용이 불가능하기 때문입니다.
 
-| 방법 | 한계점 |
-|------|--------|
-| **config.json 비교** | Fine-tuning은 architecture를 보존하므로, 동일한 dimension을 가진 모델이 파생작일 수 있음 |
-| **vocab_size 비교** | Fine-tuning 시 tokenizer를 그대로 사용하므로, vocab_size 일치가 파생 증거가 될 수 있음 |
+비판의 타당성을 평가하면, "config dimension 비교만으로 불충분"하다는 주장은 부분적으로 맞습니다. 같은 architecture에서 fine-tuning이 가능하기 때문입니다. "실제 토큰 중복률이 더 중요"하다는 주장은 맞는데, 특히 vocab_size가 유사할 때 그렇습니다. "weight 비교가 더 중요"하다는 주장은 부분적으로 맞지만, 학술 연구에서는 output behavior가 더 신뢰성 있는 것으로 나타났습니다.
 
-### 3. 현재 프로젝트 방법론의 유효성 재평가
+현재 프로젝트 판정의 유효성을 정리하면, vocab_size가 명확히 다른 모델들인 Solar, A.X-K1, VAETKI, K-EXAONE의 판정은 유효합니다. vocab_size가 유사한 HyperCLOVAX는 추가 검증을 권장합니다.
 
-**현재 프로젝트 로직**: "vocab_size가 **불일치**하면 from scratch 지지"
+---
 
-| 상황 | 해석 | 유효성 |
-|------|------|--------|
-| vocab_size가 **다름** | Tokenizer 재학습 필요 → from scratch 강력 증거 | ✅ 유효 |
-| vocab_size가 **같음** | 추가 검증 필요 (token 중복률, merge rules) | ⚠️ 추가 분석 필요 |
+## Q12: 왜 많은 대규모 MoE 모델들이 48 레이어와 129 experts를 사용하나요?
 
-**결론**: vocab_size **불일치**를 기반으로 한 판정 (Solar, A.X-K1, VAETKI, K-EXAONE)은 **여전히 유효**. HyperCLOVAX처럼 vocab_size가 유사한 경우에는 **실제 토큰 중복률 분석**이 추가로 필요.
+**질문 시각**: 2026-01-06
 
-### 4. Yi-Llama 논란 사례
+**답변**:
 
-01.AI의 Yi-34B 모델이 Meta Llama에서 파생되었다는 의혹 사례:
+DeepSeek이나 Solar 같은 대규모 MoE 모델들이 유사한 구성을 사용하는 이유가 궁금할 수 있습니다. 결론부터 말하면, 48 레이어와 129 experts는 수학적 공식에서 도출된 것이 아니라 경험적 최적화의 결과입니다.
 
-| 증거 유형 | 발견 내용 | 결론 |
-|-----------|-----------|------|
-| Architecture | Llama와 동일한 구조 | 표준 관행, 저작권 대상 아님 |
-| Tensor Names | Llama 형식 그대로 사용 | 01.AI "oversight" 인정 |
-| Weights | 복사 증거 없음 | 독립 학습 주장 유지 |
+먼저 48 레이어를 사용하는 이유를 살펴보겠습니다. MoE 모델에서 FFN(Feed-Forward Network) 레이어가 전체 파라미터의 대부분을 차지합니다. 레이어 수는 "총 파라미터 대비 활성 파라미터" 비율을 조절하는 핵심 변수입니다. 예를 들어 DBRX는 132B 총 파라미터 중 36B만 활성화됩니다. 48이라는 숫자는 2⁴ × 3으로, GPU/TPU 클러스터에서 레이어를 효율적으로 분배할 수 있는 구조입니다. 다양한 분할이 가능해서 하드웨어 병렬화에 유리합니다.
 
-**[EleutherAI 분석](https://blog.eleuther.ai/nyt-yi-34b-response/)**: Yi는 독립적으로 학습되었으며, Llama 아키텍처 채택은 업계 표준 관행.
+129 experts를 사용하는 이유는 더 흥미롭습니다. 129는 128+1 구조로 이해할 수 있습니다. 128은 2⁷로 power of 2이기 때문에 메모리와 연산 최적화에 유리합니다. 그리고 +1은 Shared Expert입니다. 모든 토큰이 공유하는 전문가로, DeepSeek-V2와 V3에서 이 패턴을 사용합니다.
 
-관련 링크:
-- [SCMP 기사](https://www.scmp.com/tech/tech-trends/article/3241680/chinese-tech-unicorn-01ai-admits-oversight-changing-name-ai-model-built-meta-platforms-llama-system)
-- [HuggingFace 토론](https://huggingface.co/01-ai/Yi-34B/discussions/11)
-- [Hacker News](https://news.ycombinator.com/item?id=39659781)
+Fine-grained MoE의 이점도 있습니다. 더 많은 작은 experts는 더 많은 조합 가능성을 의미합니다. 129개 중 top-k(보통 6-8개)를 활성화하면, 8개 experts만 사용하는 모델보다 65배 이상 많은 조합이 가능합니다. 각 expert가 특정 도메인이나 패턴에 집중하는 전문화가 극대화되고, 중복이 감소하면서 품질이 향상됩니다.
 
-### 5. 방법론 개선 방향
+실제 사례를 비교해보면, DeepSeek-V3는 257개(256+1) experts 중 8개를 활성화하고 61개 레이어를 사용합니다. Qwen2.5-MoE는 64개 중 8개를 활성화합니다. Mixtral은 8개 중 2개를 활성화하고 32개 레이어를 사용합니다. DBRX는 16개 중 4개를 활성화합니다. 모델마다 다른 구성을 사용하지만, 최근 대규모 모델들은 더 많은 experts와 shared expert 패턴으로 수렴하는 경향이 있습니다.
 
-| 현재 방법 | 개선 방향 |
-|-----------|-----------|
-| vocab_size 비교 | + **실제 토큰 중복률** 계산 |
-| config dimension 비교 | + **출력 행동 유사도** 분석 |
-| Architecture 비교 | 유효 (architecture 다르면 weight 재사용 불가) |
-
-### 6. 결론
-
-비판의 타당성:
-
-| 주장 | 평가 |
-|------|------|
-| "Config dimension 비교만으로 불충분" | ✅ 부분적으로 맞음 (같은 architecture에서 fine-tuning 가능) |
-| "실제 토큰 중복률이 더 중요" | ✅ 맞음 (vocab_size가 유사할 때 특히) |
-| "Weight 비교가 더 중요" | ⚠️ 부분적으로 맞음 (학술 연구에서는 output behavior가 더 신뢰성 있음) |
-
-**현재 프로젝트 판정의 유효성**:
-- vocab_size가 **명확히 다른** 모델들 (Solar, A.X-K1, VAETKI, K-EXAONE): **판정 유효**
-- vocab_size가 **유사한** HyperCLOVAX: **추가 검증 권장** (실제 토큰 중복률)
+결론적으로 48 레이어와 129 experts 조합은 스케일링 법칙, 하드웨어 효율성, 품질-비용 트레이드오프를 경험적으로 최적화한 결과입니다. 특히 129 = 128+1 구조는 Shared Expert 패턴의 전형적인 표현입니다.
 
 ---
 
