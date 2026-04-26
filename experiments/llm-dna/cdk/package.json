@@ -1,0 +1,22 @@
+{
+  "name": "llm-dna-cdk",
+  "version": "0.1.0",
+  "bin": {
+    "llm-dna": "bin/llm-dna.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "aws-cdk": "^2.1106.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.7.0"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.180.0",
+    "constructs": "^10.4.0"
+  }
+}

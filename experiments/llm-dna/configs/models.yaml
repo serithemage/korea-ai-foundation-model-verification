@@ -1,0 +1,53 @@
+# LLM-DNA model lineup
+# instance_type follows AWS spot pool naming (ml.<size>)
+# load_in: fp16 | 4bit | 8bit
+# trust_remote_code: required for custom architectures (A.X-K1, EXAONE)
+
+targets:
+  - id: upstage/Solar-Open-100B
+    params: 102B
+    moe: true
+    instance_type: ml.p5.48xlarge
+    load_in: fp16
+    trust_remote_code: false
+
+  - id: LGAI-EXAONE/K-EXAONE-236B-A23B
+    params: 236B
+    moe: true
+    active_params: 23B
+    instance_type: ml.p5.48xlarge
+    load_in: fp16
+    trust_remote_code: true
+
+  - id: skt/A.X-K1
+    params: 519B
+    moe: true
+    instance_type: ml.p5.48xlarge
+    load_in: fp16
+    trust_remote_code: true
+
+references:
+  llama:
+    - { id: meta-llama/Llama-3.1-8B, instance_type: ml.p5.4xlarge, load_in: fp16 }
+    - { id: meta-llama/Llama-3.3-70B-Instruct, instance_type: ml.p5.4xlarge, load_in: 4bit }
+
+  qwen:
+    - { id: Qwen/Qwen2.5-7B, instance_type: ml.p5.4xlarge, load_in: fp16 }
+    - { id: Qwen/Qwen2.5-32B, instance_type: ml.p5.4xlarge, load_in: fp16 }
+    - { id: Qwen/Qwen2.5-72B, instance_type: ml.p5.4xlarge, load_in: 4bit }
+
+  glm:
+    - { id: zai-org/glm-4-9b-chat-hf, instance_type: ml.p5.4xlarge, load_in: fp16 }
+    - { id: zai-org/GLM-5-FP8, instance_type: ml.p5.48xlarge, load_in: fp16 }   # FP8 native, ~340B
+
+  moe_baseline:
+    - { id: mistralai/Mixtral-8x7B-v0.1, instance_type: ml.p5.4xlarge, load_in: 4bit }
+    - { id: deepseek-ai/DeepSeek-V2.5, instance_type: ml.p5.48xlarge, load_in: fp16 }   # 236B replacement for V3
+
+dna_extraction:
+  dataset: rand
+  max_samples: 100
+  dna_dim: 128
+  reduction_method: random_projection
+  random_seed: 42
+  embedding_merge: mean

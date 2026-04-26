@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+out/*.json
+out/*.npy
+out/*.png
+.cache/
+hf_cache/
+
+# CDK
+cdk/node_modules/
+cdk/cdk.out/
+cdk/.cdk.staging/
+cdk/*.js
+cdk/*.d.ts
+!cdk/bin/*.ts
+!cdk/lib/*.ts

@@ -1,0 +1,27 @@
+{
+  "distilgpt2": {
+    "model_name": "distilgpt2",
+    "architecture": {
+      "type": "decoder_only",
+      "model_type": "gpt2",
+      "is_generative": true
+    },
+    "size": {
+      "parameter_count_billions": null
+    },
+    "chat_model": {
+      "is_chat_model": false
+    },
+    "precision": {
+      "default_dtype": "float32"
+    },
+    "repository": {
+      "is_gated": false,
+      "model_id": "distilbert/distilgpt2"
+    },
+    "metadata": {
+      "fetched_at": "2026-04-26T09:30:15.891340",
+      "source": "huggingface_hub"
+    }
+  }
+}
