@@ -10,6 +10,7 @@
 
 - **Q0**: 왜 "from scratch" vs "fine-tuning" 논란이 발생하나요?
 - **Q1**: LLM이 "from scratch"로 학습되었는지 어떻게 검증할 수 있나요?
+- **Q13**: 국가 AI 파운데이션 모델 사업(독파모)은 2026년 4월 현재 어떻게 진행되고 있나요?
 
 ### 2. Tokenizer 분석 ([02-tokenizer-분석.md](02-tokenizer-분석.md))
 
