@@ -73,8 +73,11 @@
 | **Architecture** | 48 layers, 129 experts (고유 구성) | ✅ 강력 지지 |
 | **Weight** | Architecture 불일치로 비교 불가 | ✅ 간접 지지 |
 | **행동** | 공개 검증 세션에서 training logs 제시 | ⚠️ 조건부 지지* |
+| **LLM-DNA 계통** | 어느 reference 가족에도 명확히 묶이지 않음 (GLM 0.463 ≈ Llama-3.3 0.469, Qwen 내부 0.19의 2.4×) | ✅ 약한 정량 지지** |
 
 > *조건부 지지: Training logs는 공개 세션 참석자만 직접 확인 가능했으며, 외부에서 독립적으로 검증할 수 없음. 단, [YouTube Live](https://www.youtube.com/live/2YY9aAUSo_w)로 공개되어 투명성은 확보됨.
+
+> **약한 정량 지지: 9개 모델 NJ 트리에서 Solar는 GLM-4-9b(0.463)와 Llama-3.3-70B-Instruct(0.469) 사이에서 거의 동률 위치를 차지해 *어떤 한 가족의 파생*이 아니라 *독립 가지*에 가깝습니다. Qwen 가족 positive control(내부 0.19)과 비교하면 ~2.4배 떨어진 거리라 명확한 파생 수준은 아닙니다. Functional fingerprint 단독 결과이므로 위 4가지 분석과 함께 종합 판단해야 합니다 — 상세는 [docs/05-llm-dna-analysis.md](docs/05-llm-dna-analysis.md).
 
 **판정: From scratch 신뢰 가능**
 
@@ -204,6 +207,7 @@
 | **Architecture** | 48 layers, 129 experts, LLLG Attention, 256K context (고유 구성) | ✅ 강력 지지 |
 | **Weight** | Architecture 불일치로 비교 불가 | ✅ 간접 지지 |
 | **행동** | 미수행 | ⚠️ 추가 가능* |
+| **LLM-DNA 계통** | K-EXAONE-236B 자체는 미수행 (transformers 5.x ExaoneMoE 비호환). LG 계열 대체로 EXAONE-3.5-32B-Instruct 추출 → GLM-4-9b-chat-hf와 0.384 (검증 set 내 가까운 페어) | ⚠️ 부가 데이터, 추가 검증 권장** |
 
 > *행동 분석 미수행 사유:
 > - 직접 실행 환경(API 또는 로컬 추론) 없이 행동 분석 불가
@@ -216,47 +220,69 @@
 > - 256K context length는 검증 대상 모델 중 최장으로, 별도 engineering 필요
 > - 다만 training logs나 학습 과정에 대한 공개 검증은 확인되지 않음
 
-**판정: From scratch 신뢰 가능**
+> ****부가 데이터 — EXAONE-3.5-32B-Instruct (LG 계열 대체 검증):
+> - K-EXAONE-236B-A23B 자체는 transformers 5.x와 ExaoneMoeModel weight conversion이 deterministic하게 실패해 LLM-DNA 추출 불가 (multi-GPU fp16 환경에서 718개 shard 100% 로드 후 weight conversion 단계에서 layer-별 expert tensor concat error 발생, 재시도 무관)
+> - LG 계열의 functional fingerprint 단서로 같은 회사의 EXAONE-3.5-32B-Instruct를 대체 추출
+> - 9개 모델 NJ 트리에서 EXAONE-3.5는 GLM-4-9b-chat-hf와 cosine 0.384, Llama-3.1-8B와 0.637로 검증 set 내 비교적 가까운 페어 형성. Qwen 가족 내부(0.19)의 ~2배라 *명확한 파생 수준*은 아니지만, 다른 reference 페어보다 두드러진 신호
+> - LG의 EXAONE 시리즈와 GLM/Llama-8B 가족 사이에 *후처리 데이터/스타일 공유* 가능성에 대한 별도 분석 권장
+> - 단, EXAONE-3.5 결과를 K-EXAONE-236B에 직접 외삽하는 것은 위험 (스케일/아키텍처 차이). K-EXAONE-236B 본체는 transformers 호환성이 회복되는 시점에 재시도 필요
+> - 상세는 [docs/05-llm-dna-analysis.md](docs/05-llm-dna-analysis.md)
+
+**판정: From scratch 신뢰 가능 (단, EXAONE-3.5의 LLM-DNA 신호로 추가 검증 가치 있음)**
 
 상세 분석:
 - [Tokenizer 분석](docs/01-tokenizer-analysis.md)
 - [Architecture 분석](docs/03-architecture-analysis.md)
+- [LLM-DNA 계통 분석 — EXAONE-3.5 부가 데이터](docs/05-llm-dna-analysis.md)
 
 ---
 
-## LLM-DNA 계통 분석 (진행 중, 2026-04-30)
+## LLM-DNA 계통 분석 (✅ 완료, 2026-04-30)
 
-차기 라운드 진출자 3개(Upstage · SKT · LG)의 계보를 [LLM-DNA](https://github.com/Xtra-Computing/LLM-DNA) Neighbor-Joining 트리로 추적하는 실험이 진행 중입니다. 한국 타깃 모델이 글로벌 reference 가족(Llama 3 / Qwen 2.5 / GLM / Mixtral) 중 어디에 가까운지 — 또는 어디에도 가깝지 않아 from-scratch 가설을 강화하는지 — 정량적으로 확인하는 것이 목표입니다.
+차기 라운드 진출자 3개(Upstage · SKT · LG) 중 Upstage·LG 두 모델의 계보를 [LLM-DNA](https://github.com/Xtra-Computing/LLM-DNA) Neighbor-Joining 트리로 추적했습니다. 한국 타깃 모델이 글로벌 reference 가족(Llama 3 / Qwen 2.5 / GLM / Mixtral) 중 어디에 가까운지 — 또는 어디에도 가깝지 않아 from-scratch 가설을 강화하는지 — 정량적으로 확인하는 것이 목표였고, **9개 모델(검증 대상 2종 + reference 7종) squad probe 기반 트리**가 산출되었습니다. 상세 보고는 [docs/05-llm-dna-analysis.md](docs/05-llm-dna-analysis.md).
 
-### 진행 상황
+### 핵심 결과
 
-| 모델 | 추출 상태 | 비고 |
-|------|---------|------|
-| meta-llama/Llama-3.1-8B | ✅ 완료 | reference (Llama 가족) |
-| meta-llama/Llama-3.3-70B-Instruct | ✅ 완료 | reference (Llama 가족) |
-| Qwen/Qwen2.5-7B / 32B / 72B | ✅ 완료 (3개) | reference (Qwen 가족) |
-| zai-org/glm-4-9b-chat-hf | ✅ 완료 | reference (GLM 가족) |
-| LGAI-EXAONE/EXAONE-3.5-32B-Instruct | ✅ 완료 | LG 타깃 (K-EXAONE-236B 대체) |
-| upstage/Solar-Open-100B | 🔄 재제출 (p5.48xl us-east-1) | Upstage 타깃 |
-| mistralai/Mixtral-8x7B-Instruct-v0.1 | 🔄 재제출 (p5.48xl us-east-1) | MoE baseline |
+| 한국 타깃 | 가장 가까운 reference | cosine 거리 | 정량적 해석 | LLM-DNA 단독 판정 |
+|---|---|---|---|---|
+| **Solar-Open-100B** | GLM-4-9b (0.463) ≈ Llama-3.3 (0.469) | Qwen 가족 내부(0.19)의 **2.4×** | 어느 한 가족에도 묶이지 않음 | **From-scratch 약하게 지지** |
+| **EXAONE-3.5-32B-Instruct** (K-EXAONE 대체) | GLM-4-9b-chat-hf | **0.384** (Qwen 내부의 ~2×) | 약한 근접성, 명확한 파생은 아님 | **추가 검증 권장** |
 
-### 주요 결정
+방법론 자체의 *positive control*도 통과했습니다 — Qwen-7B/32B/72B 가족 내부 거리 0.19–0.34는 검증 set의 다른 어떤 페어보다 압도적으로 가까워, 같은 회사가 같은 데이터로 학습한 동일 가족이 한 클러스터로 잡힌다는 것을 보여줍니다. 즉 *방법론이 진짜 가족을 잡아낼 수 있다*는 자기 검증.
 
-- **K-EXAONE-236B-A23B 제외**: transformers 5.x와 ExaoneMoE weight conversion 비호환(deterministic 실패) → EXAONE-3.5-32B-Instruct로 LG 계통 대체.
-- **A.X-K1 519B 보류**: 1TB+ raw weight + capacity 제약으로 Phase 2/3 이관.
-- **MoE baseline을 Instruct 변종으로 교체**: Mixtral-8x7B-v0.1(base)이 squad/rand probe set 모두에서 100/100 빈 응답 → 같은 weight 위에 chat tuning만 더한 Instruct로 교체.
-- **GPU 호환성 함정**: g7e(L40S, CUDA capability 8.9)는 transformers 5.7.0이 MoE forward에 사용하는 `torch._grouped_mm`(Hopper 9.0 전용) 미지원 → Solar/Mixtral-Instruct는 ml.p5.48xlarge(H100) spot으로 재제출.
+cosine과 euclidean 두 메트릭에서 동일한 트리 위상이 나와 *메트릭 강건성*도 확인되었습니다.
 
-### 인프라
+### 검증 대상 변경 사항
 
-AWS CDK(TypeScript) + SageMaker spot training으로 비용 절감(~$30-40 누적, spot 60-80% 할인 반영). 멀티 리전(us-east-1 + us-west-2)으로 capacity 분산. 코드는 [`experiments/llm-dna/`](experiments/llm-dna/), 분석 지식 베이스는 [`wiki/index.md`](wiki/index.md)(28페이지) 참조.
+- **K-EXAONE-236B-A23B 제외 → EXAONE-3.5-32B-Instruct 대체**: transformers 5.x와 ExaoneMoE weight conversion이 deterministic하게 실패해 추출 불가. LG 계통은 같은 회사의 EXAONE-3.5로 대체 검증.
+- **A.X-K1 519B 보류**: 1TB+ raw weight + spot capacity 제약으로 Phase 2/3 이관.
+- **MoE baseline을 Mixtral-Instruct로 교체**: Mixtral-8x7B-v0.1(base)이 squad/rand 모두에서 100/100 빈 응답 → 같은 weight + chat tuning만 더한 Instruct 변종으로 교체.
 
-### 산출 예정
+### 운영 시 발견한 함정 6가지 (후속 검증자용)
 
-- `experiments/llm-dna/out/lineage_{cosine,euclidean}.nwk` — Newick 트리 (iTOL/ete3)
-- `experiments/llm-dna/out/distance_{cosine,euclidean}.csv` — 거리 매트릭스
-- `experiments/llm-dna/out/lineage_*_ascii.txt` — ASCII 트리
-- [`docs/05-llm-dna-analysis.md`](docs/05-llm-dna-analysis.md) — 결과 보고서 (대기 중)
+이 검증이 학술 논문이 다루지 않는 *운영적 함정*을 다수 드러냈습니다. 후속자가 같은 디버깅을 반복하지 않도록 [docs/tutorial/05-방법론-평가.md Q17](docs/tutorial/05-방법론-평가.md)에 정리했고, 핵심만 요약하면:
+
+1. **응답 기반 fingerprint의 silent failure** — 빈 응답이 모두 동일 fallback embedding으로 collapse → 가짜 0.0 거리 페어
+2. **GPU 세대 × transformers 버전 매트릭스** — `torch._grouped_mm`(Hopper 9.0 전용)이 MoE forward에서 자동 호출되어 L40S/A100에서 RuntimeError
+3. **Multi-GPU 통신 오버헤드** — 모델 크기에 비해 너무 잘게 분산하면 NCCL 호출이 forward 비용을 압도
+4. **`--continue-on-error`의 양면성** — 모든 prompt가 실패해도 잡은 *Completed*로 보임
+5. **`analyze.py` oldest-wins 버그** — 같은 model_id의 옛 빈 응답 결과가 정상 결과를 가림 (latest-wins로 수정)
+6. **응답 길이 무제한** — base 모델이 max_new_tokens 한계까지 흘러 generation 시간 8× 증가. sentence-encoder ~512 토큰 컷오프라 cap=256으로 줄여도 fingerprint 손실 없음
+
+알고리즘과 구현체의 *결정적 차이*(논문은 hidden-state, 0.2.x 구현체는 text-response)는 [Q15](docs/tutorial/01-기초개념.md), 12살 입문판은 [Q18](docs/tutorial/01-기초개념.md), 알고리즘 깊이는 [Q14·Q16](docs/tutorial/01-기초개념.md) 참조.
+
+### 인프라와 산출물
+
+AWS CDK(TypeScript) + SageMaker spot training으로 멀티 리전(us-east-1 + us-west-2) 분산. 누적 비용 ~$50-70 (spot 60-80% 할인 반영). 코드는 [`experiments/llm-dna/`](experiments/llm-dna/), 지식 베이스는 [`wiki/index.md`](wiki/index.md)(28페이지) 참조.
+
+산출물:
+- `experiments/llm-dna/out/lineage_{cosine,euclidean}.nwk` — Newick 트리 (iTOL/ete3에서 즉시 시각화)
+- `experiments/llm-dna/out/distance_{cosine,euclidean}.csv` — 9×9 거리 행렬
+- `experiments/llm-dna/out/distance_{cosine,euclidean}.png` — 히트맵
+- `experiments/llm-dna/out/lineage_*.png` — bootstrap support 라벨이 붙은 시각화 트리
+- [`docs/05-llm-dna-analysis.md`](docs/05-llm-dna-analysis.md) — 분석 보고서 (방법론 + 결과 + 판정)
+
+> ⚠️ **이 판정은 functional fingerprint 단독 결과**입니다. Tokenizer 분석(1)·Architecture 분석(3)·Weight 분석(2)과 함께 종합 판단해야 하며, 단일 metric으로 from-scratch를 단정하는 것은 LayerNorm fingerprint fallacy 같은 함정에 빠질 수 있습니다.
 
 ---
 

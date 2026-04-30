@@ -1,8 +1,9 @@
 # 05. LLM-DNA 계통 분석
 
-> **상태**: 🚧 진행 중 (Phase 2 완료, Phase 3 컨테이너 준비 완료, Phase 4 sanity 잡 진행 중)
+> **상태**: ✅ 완료 (2026-04-30, 9개 모델 squad probe 기반 NJ 트리 + bootstrap 100)
 > **방법**: [LLM-DNA](https://github.com/Xtra-Computing/LLM-DNA) (ICLR'26 Oral) functional fingerprint 추출 + Neighbor-Joining 트리 구축
 > **목적**: [[dokpamo-project]] 차기 라운드 진출 3종(Solar-Open-100B / K-EXAONE-236B-A23B / A.X-K1)의 functional 계통을 reference 모델군과 비교하여 from scratch 주장의 정황 증거 보강
+> **요약**: Solar는 어느 reference 가족에도 명확히 묶이지 않음(from-scratch 약하게 지지) · EXAONE-3.5(K-EXAONE 대체)는 GLM-4-9b와 비교적 가까움(추가 검증 권장) · A.X-K1·K-EXAONE-236B는 Phase 2/3 이관
 
 ---
 
@@ -194,6 +195,9 @@ Qwen 가족 내 (Qwen-7B, Qwen-72B) 페어는 매우 강한 결속을 보였고,
 | 2026-04-26 | Phase 2 | CDK 스택 배포 (S3, ECR, Secret, IAM) |
 | 2026-04-26 | Phase 3 | 컨테이너 빌드 + ECR push (10.68 GB, ~70분) |
 | 2026-04-26 | Phase 4 sanity | Qwen2.5-7B 잡 제출 → p5.4xlarge spot capacity 부족 (score 1) |
-| TBD | Phase 4 | Reference 9개 — capacity 회복 또는 p5.48xlarge fallback 후 진행 |
-| TBD | Phase 5 | Korean 3종 (p5.48xlarge) |
-| TBD | Phase 6 | analyze.py로 트리 구축 + 본 보고서 결과 섹션 채움 |
+| 2026-04-27 | Phase 4 | Reference 7종(Llama 2종, Qwen 3종, GLM, Mixtral) g7e.* 멀티리전 추출 완료 |
+| 2026-04-29 | Phase 5a | K-EXAONE-236B-A23B 시도 → transformers 5.x ExaoneMoeModel weight conversion 비호환(deterministic fail) → EXAONE-3.5-32B-Instruct로 LG 계통 대체 결정 |
+| 2026-04-30 | Phase 5b silent failure | Solar/Mixtral-base가 squad/rand 양쪽에서 100/100 빈 응답 → text_response_embeddings의 fallback collapse 함정 식별. dna_train.py에 min_new_tokens=50 패치, MoE baseline을 Mixtral-Instruct로 교체 |
+| 2026-04-30 | Phase 5c GPU 호환성 | g7e(L40S, CC 8.9)에서 transformers 5.7.0의 `torch._grouped_mm`(Hopper 9.0 전용) RuntimeError 발견 → Solar/Mixtral-Instruct를 us-east-1 ml.p5.48xlarge spot으로 재제출 |
+| 2026-04-30 | Phase 5d 응답 길이 cap | Solar p5 1차 잡이 200s/prompt(응답이 max=2048까지 흐름) → max_new_tokens=256 cap 패치 후 24s/prompt(8× 단축). Mixtral-Instruct는 35s/prompt 정상 |
+| 2026-04-30 | Phase 6 분석 | `analyze.py`의 oldest-wins 매칭 버그(빈 응답 옛 결과가 winner) 발견 → latest-wins 로직으로 수정. 9개 모델 cosine+euclidean 트리 + bootstrap 100 실행 → 본 보고서 "결과" 섹션 |
