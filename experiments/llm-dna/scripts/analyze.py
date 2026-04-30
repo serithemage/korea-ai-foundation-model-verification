@@ -29,13 +29,34 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+import yaml
 from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor
 from Bio import Phylo
 from scipy.spatial.distance import pdist, squareform
 
-REGION = "us-east-1"
-STACK = "LlmDnaStack"
+DEFAULT_REGION = "us-east-1"
 OUT_DIR = Path("out")
+MODELS_YAML = Path("configs/models.yaml")
+
+
+def load_active_models(yaml_path: Path = MODELS_YAML) -> set[str]:
+    """Read configs/models.yaml and return the set of currently-active model ids.
+    S3 retains artifacts from removed/superseded models (e.g. base Mixtral whose
+    squad probe collapsed to empty responses), so the tree must be filtered to
+    just the lineup we currently care about."""
+    cfg = yaml.safe_load(yaml_path.read_text())
+    ids: set[str] = set()
+    for m in cfg.get("targets", []):
+        ids.add(m["id"])
+    for sub in cfg.get("references", {}).values():
+        for m in sub:
+            ids.add(m["id"])
+    return ids
+
+
+def stack_name(region: str) -> str:
+    """Match cdk/bin/llm-dna.ts: us-east-1 keeps short name, others get region suffix."""
+    return "LlmDnaStack" if region == "us-east-1" else f"LlmDnaStack-{region}"
 
 # Color groups for visualization
 COLOR_GROUPS = {
@@ -56,39 +77,47 @@ def color_for(model: str) -> str:
     return COLOR_GROUPS["other"][0]
 
 
-def stack_outputs() -> dict[str, str]:
-    cf = boto3.client("cloudformation", region_name=REGION)
-    outs = cf.describe_stacks(StackName=STACK)["Stacks"][0]["Outputs"]
+def stack_outputs(region: str) -> dict[str, str]:
+    cf = boto3.client("cloudformation", region_name=region)
+    outs = cf.describe_stacks(StackName=stack_name(region))["Stacks"][0]["Outputs"]
     return {o["OutputKey"]: o["OutputValue"] for o in outs}
 
 
-def list_dna_artifacts(bucket: str) -> dict[str, str]:
+def list_dna_artifacts(bucket: str, region: str) -> dict[str, str]:
     """Return {model_id: s3_key_to_npy_or_json}."""
-    s3 = boto3.client("s3", region_name=REGION)
+    s3 = boto3.client("s3", region_name=region)
     paginator = s3.get_paginator("list_objects_v2")
     artifacts: dict[str, str] = {}
-    pat = re.compile(r"dna/(?P<job>[^/]+)/raw/(?P<model>[^/]+)/(?P<file>.+\.(npy|json))$")
+    # llm-dna writes <model>_dna.json (signature) alongside responses.json + summary.json.
+    # Match only the DNA file to avoid loading the other two.
+    pat = re.compile(r"dna/(?P<job>[^/]+)/raw/(?P<model>[^/]+)/.+_dna\.(?:npy|json)$")
     for page in paginator.paginate(Bucket=bucket, Prefix="dna/"):
         for obj in page.get("Contents", []):
             m = pat.match(obj["Key"])
             if not m:
                 continue
             model = m.group("model").replace("__", "/")
-            # Prefer .npy over .json
             if obj["Key"].endswith(".npy") or model not in artifacts:
                 artifacts[model] = obj["Key"]
     return artifacts
 
 
-def fetch_dna_vector(bucket: str, key: str) -> np.ndarray:
-    s3 = boto3.client("s3", region_name=REGION)
+def fetch_dna_vector(bucket: str, key: str, region: str) -> np.ndarray:
+    s3 = boto3.client("s3", region_name=region)
     body = s3.get_object(Bucket=bucket, Key=key)["Body"].read()
     if key.endswith(".npy"):
         return np.load(io.BytesIO(body))
-    # JSON fallback
+    # JSON fallback. llm-dna 0.2.x writes {"signature": [...], "metadata": {...}};
+    # older versions used "vector" or a bare list.
     import json
     obj = json.loads(body)
-    return np.asarray(obj["vector"] if isinstance(obj, dict) else obj, dtype=np.float64)
+    if isinstance(obj, dict):
+        vec = obj.get("signature") or obj.get("vector") or obj.get("dna")
+        if vec is None:
+            raise ValueError(f"Unrecognized DNA JSON keys: {list(obj.keys())}")
+    else:
+        vec = obj
+    return np.asarray(vec, dtype=np.float64)
 
 
 def build_tree(vectors: dict[str, np.ndarray], metric: str) -> tuple[DistanceMatrix, "Phylo.BaseTree.Tree"]:
@@ -192,24 +221,33 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--metric", action="append", default=None, help="Distance metric; repeatable")
     p.add_argument("--bucket", help="Override S3 bucket (default: from CDK stack outputs)")
+    p.add_argument("--region", default=DEFAULT_REGION,
+                   help=f"AWS region (default {DEFAULT_REGION}). Stack name auto-derived.")
     p.add_argument("--bootstrap", type=int, default=0, help="Bootstrap iterations (0 = off)")
     p.add_argument("--seed", type=int, default=42)
     args = p.parse_args()
     metrics = args.metric or ["cosine", "euclidean"]
 
     OUT_DIR.mkdir(exist_ok=True)
-    bucket = args.bucket or stack_outputs()["ArtifactsBucketName"]
-    print(f"S3 bucket: {bucket}")
+    bucket = args.bucket or stack_outputs(args.region)["ArtifactsBucketName"]
+    print(f"Region: {args.region}  S3 bucket: {bucket}")
 
-    artifacts = list_dna_artifacts(bucket)
+    artifacts = list_dna_artifacts(bucket, args.region)
     if not artifacts:
         print("No DNA artifacts found yet.")
         return 1
-    print(f"Found {len(artifacts)} model artifacts")
+
+    active = load_active_models()
+    excluded = {m: k for m, k in artifacts.items() if m not in active}
+    artifacts = {m: k for m, k in artifacts.items() if m in active}
+    if excluded:
+        print(f"Excluding {len(excluded)} artifact(s) not in configs/models.yaml: "
+              f"{sorted(excluded)}")
+    print(f"Found {len(artifacts)} active model artifact(s)")
 
     vectors: dict[str, np.ndarray] = {}
     for model, key in sorted(artifacts.items()):
-        v = fetch_dna_vector(bucket, key)
+        v = fetch_dna_vector(bucket, key, args.region)
         vectors[model] = v
         print(f"  {model}: shape={v.shape}, key={key}")
 

@@ -45,8 +45,9 @@ export class LlmDnaStack extends cdk.Stack {
       ],
     });
 
+    // roleName intentionally not set: IAM is global namespace and we deploy this stack in
+    // multiple regions (us-east-1, us-west-2). Letting CDK auto-name avoids CFN conflicts.
     const sagemakerRole = new iam.Role(this, 'SageMakerExecRole', {
-      roleName: 'LlmDnaSageMakerExecutionRole',
       assumedBy: new iam.ServicePrincipal('sagemaker.amazonaws.com'),
       description: 'SageMaker training job execution role for LLM-DNA extraction',
       managedPolicies: [

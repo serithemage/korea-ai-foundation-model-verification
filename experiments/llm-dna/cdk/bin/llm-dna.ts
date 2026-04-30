@@ -4,12 +4,16 @@ import { LlmDnaStack } from '../lib/llm-dna-stack';
 
 const app = new cdk.App();
 
-// Region is intentionally hard-coded: ml.p5.48xlarge spot quota and capacity (score 9)
-// were verified specifically in us-east-1. Do not honor AWS_DEFAULT_REGION / profile region.
-new LlmDnaStack(app, 'LlmDnaStack', {
+// Multi-region capable. Pass CDK_TARGET_REGION=us-west-2 to deploy a separate stack there.
+// Stack names: us-east-1 keeps the original short name; other regions get a region suffix
+// to avoid CFN conflicts within the same account.
+const region = process.env.CDK_TARGET_REGION ?? 'us-east-1';
+const stackName = region === 'us-east-1' ? 'LlmDnaStack' : `LlmDnaStack-${region}`;
+
+new LlmDnaStack(app, stackName, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: 'us-east-1',
+    region,
   },
-  description: 'LLM-DNA lineage analysis: S3 cache, HF token secret, SageMaker exec role, ECR repo for spot training jobs',
+  description: `LLM-DNA lineage analysis (${region}): S3 cache, HF token secret, SageMaker exec role, ECR repo`,
 });

@@ -1,0 +1,12 @@
+# Installed by SageMaker DLC at training-job startup.
+# Keep minimal — torch & transformers are already in the DLC.
+#
+# We deliberately avoid `llm-dna[quantization]` because it pulls in auto-gptq/autoawq,
+# which build CUDA extensions from source via PEP-517 build isolation — that environment
+# does NOT see the DLC's pre-installed torch and the build fails. We only need bitsandbytes
+# (prebuilt wheels) for 4-bit inference, so we install it directly.
+llm-dna>=0.1
+bitsandbytes>=0.46.1
+boto3>=1.34
+hf_transfer>=0.1.6
+huggingface_hub>=0.25

@@ -51,7 +51,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 특정 모델 검증 결과, 논란 사례 | `docs/tutorial/04-사례연구.md` |
 | 방법론 비판, 학술 연구, 개선 방향 | `docs/tutorial/05-방법론-평가.md` |
 
-신규 Q&A 작성 시 주제 분류, Q 번호 규칙, 내러티브 스타일 가이드는 `.claude/skills/update-tutorial.md`를 따른다.
+신규 Q&A 작성 시 주제 분류, Q 번호 규칙, 내러티브 스타일 가이드는 `.claude/skills/update-tutorial/SKILL.md`(스타일 상세는 `.claude/skills/update-tutorial/references/narrative-style.md`)를 따른다.
 
 ### Q&A 형식 (내러티브 스타일)
 
@@ -92,9 +92,10 @@ docs/
 | `CHANGELOG.md` | 변경 이력 (날짜별, 카테고리별) |
 | `docs/tutorial/README.md` | Q&A 튜토리얼 인덱스 |
 | `.claude/commands/save.md` | `/save` 커맨드 정의 |
-| `.claude/skills/update-tutorial.md` | Q&A 작성 스타일 가이드 (내러티브) |
-| `.claude/skills/update-changelog.md` | CHANGELOG 작성 가이드 |
-| `.claude/skills/llm-dna-knowledge.md` | LLM-DNA·계통 분석 작업 시 wiki 우선 참조 컨벤션 |
+| `.claude/skills/update-tutorial/SKILL.md` | Q&A 작성 스타일 가이드 (내러티브) |
+| `.claude/skills/update-changelog/SKILL.md` | CHANGELOG 작성 가이드 |
+| `.claude/skills/llm-dna-knowledge/SKILL.md` | LLM-DNA·계통 분석 작업 시 wiki 우선 참조 컨벤션 |
+| `.claude/skills/karpathy-guidelines/SKILL.md` | LLM 코딩 함정 회피 4원칙 (Think/Simplicity/Surgical/Goal-Driven) — [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills), MIT |
 | `wiki/index.md` | LLM-DNA 지식 베이스 인덱스 (28페이지, [[wiki-link]] 교차참조) |
 | `experiments/llm-dna/` | LLM-DNA 추출 실험 (CDK + SageMaker spot training) |
 

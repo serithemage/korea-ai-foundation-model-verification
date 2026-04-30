@@ -1,4 +1,8 @@
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 .DS_Store
 *.pyc
 __pycache__/
+.handoff.md
+# LLM-DNA 산출물 — squad 기반 최종본만 -f로 강제 add (rand 기반 옛 결과 자동 제외)
+experiments/llm-dna/out/

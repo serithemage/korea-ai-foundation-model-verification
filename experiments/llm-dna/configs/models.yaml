@@ -3,49 +3,76 @@
 # load_in: fp16 | 4bit | 8bit
 # trust_remote_code: required for custom architectures (A.X-K1, EXAONE)
 
+# Region: us-west-2 (g7e quota 4 each on 2/4/8/12xl, verified working)
+# L40S 48GB single-GPU, 4×L40S 192GB on g7e.12xl
+# A.X-K1 519B is intentionally omitted from this lineup — needs g7e.48xl (quota 0)
+# or p5.48xl (사용자 보고: 미사용). Handled separately when capacity available.
+
 targets:
   - id: upstage/Solar-Open-100B
     params: 102B
     moe: true
-    instance_type: ml.p5.48xlarge
+    # 1차 추출(2026-04-29) g7e.48xl fp16 14분 성공 (HF metadata는 10.47B로 표시되지만
+    # raw weight 다운로드는 ~200GB로 g7e.12xl 192GB에 빡빡 → g7e.48xl 8×L40S=384GB 사용).
+    # 다만 rand probe set에선 100/100 빈 응답으로 DNA 부정확. squad로 재추출 필요.
+    instance_type: ml.g7e.48xlarge
     load_in: fp16
     trust_remote_code: false
 
-  - id: LGAI-EXAONE/K-EXAONE-236B-A23B
-    params: 236B
-    moe: true
-    active_params: 23B
-    instance_type: ml.p5.48xlarge
+  # K-EXAONE-236B-A23B (LG AI 원래 1차 타깃)는 transformers 5.x와 weight conversion
+  # 비호환으로 제외 (사용자 결정 2026-04-29). 두 차례 시도 모두 실패:
+  #   - 4bit: bitsandbytes가 single-GPU 강제 + CPU offload 거부
+  #   - fp16 (multi-GPU 패치 후): 718개 shard 100% 로드 성공했으나
+  #     ExaoneMoeModel weight conversion에서 layers.{3..15,47}.mlp.experts.gate_up_proj
+  #     + layers.{4,6,8,10,12,14}.mlp.experts.down_proj가 "Concatenate ... Ckpt contains: 2"
+  #     RuntimeError. mtp.* 텐서들도 UNEXPECTED. custom MoE 체크포인트 구조와 transformers
+  #     로더 불일치 (deterministic). EXAONE-3.5-32B-Instruct로 LG 계통 대체.
+  - id: LGAI-EXAONE/EXAONE-3.5-32B-Instruct
+    params: 32B
+    instance_type: ml.g7e.12xlarge   # 4×L40S 192GB; 32B fp16 ≈64GB 분산 여유
     load_in: fp16
     trust_remote_code: true
 
-  - id: skt/A.X-K1
-    params: 519B
-    moe: true
-    instance_type: ml.p5.48xlarge
-    load_in: fp16
-    trust_remote_code: true
+  # A.X-K1 519B 는 이번 검증에서 제외 (사용자 결정 2026-04-29).
+  # - 4-bit ≈260GB → g7e.48xl(384GB) 가능하지만 빡빡, p5.48xl(640GB) 여유
+  # - 그러나 519B 다운로드(1TB+ raw)는 /tmp instance store 1.7TB에도 빠듯
+  # - Phase 2/3 작업으로 미룸. quota 추가 신청 + multi-node 고려 필요.
+  # - id: skt/A.X-K1
 
 references:
   llama:
-    - { id: meta-llama/Llama-3.1-8B, instance_type: ml.p5.4xlarge, load_in: fp16 }
-    - { id: meta-llama/Llama-3.3-70B-Instruct, instance_type: ml.p5.4xlarge, load_in: 4bit }
+    - { id: meta-llama/Llama-3.1-8B, params: 8B, instance_type: ml.g7e.4xlarge, load_in: fp16 }
+    - { id: meta-llama/Llama-3.3-70B-Instruct, params: 70B, instance_type: ml.g7e.12xlarge, load_in: 4bit }
 
   qwen:
-    - { id: Qwen/Qwen2.5-7B, instance_type: ml.p5.4xlarge, load_in: fp16 }
-    - { id: Qwen/Qwen2.5-32B, instance_type: ml.p5.4xlarge, load_in: fp16 }
-    - { id: Qwen/Qwen2.5-72B, instance_type: ml.p5.4xlarge, load_in: 4bit }
+    - { id: Qwen/Qwen2.5-7B, params: 7B, instance_type: ml.g7e.4xlarge, load_in: fp16 }
+    - { id: Qwen/Qwen2.5-32B, params: 32B, instance_type: ml.g7e.4xlarge, load_in: 4bit }
+    - { id: Qwen/Qwen2.5-72B, params: 72B, instance_type: ml.g7e.12xlarge, load_in: 4bit }
 
   glm:
-    - { id: zai-org/glm-4-9b-chat-hf, instance_type: ml.p5.4xlarge, load_in: fp16 }
-    - { id: zai-org/GLM-5-FP8, instance_type: ml.p5.48xlarge, load_in: fp16 }   # FP8 native, ~340B
+    - { id: zai-org/glm-4-9b-chat-hf, params: 9B, instance_type: ml.g7e.4xlarge, load_in: fp16 }
+    # GLM-5-FP8 (~340B): g7e.12xl 192GB 4-bit (170GB) 가능하지만 빡빡. 보류.
+    # - { id: zai-org/GLM-5-FP8, instance_type: ml.g7e.12xlarge, load_in: 4bit }
 
+  # MoE baseline: Mixtral 만 사용. DeepSeek-V2.5는 transformers 5.x와 trust_remote_code 코드 호환 X
+  # (cannot import is_torch_fx_available). MoE 비교는 Mixtral 하나로 충분 (사용자 결정 2026-04-27).
+  # Mixtral 4-bit + bitsandbytes auto device_map이 MoE 처리 시 CPU offload 시도해 fail.
+  # fp16 (94GB) + 4×L40S (192GB)로 우회 — 자연스러운 GPU split + offload 회피.
   moe_baseline:
-    - { id: mistralai/Mixtral-8x7B-v0.1, instance_type: ml.p5.4xlarge, load_in: 4bit }
-    - { id: deepseek-ai/DeepSeek-V2.5, instance_type: ml.p5.48xlarge, load_in: fp16 }   # 236B replacement for V3
+    # Mixtral-8x7B-v0.1(base)는 squad/rand probe set 둘 다에서 100/100 빈 응답 →
+    # llm-dna text_response_embeddings 추출 불가 (2026-04-29~30 검증). 같은 weight
+    # 위에 chat tuning만 더한 Instruct 변종으로 교체. MoE baseline 의미 유지.
+    - { id: mistralai/Mixtral-8x7B-Instruct-v0.1, params: 47B, instance_type: ml.g7e.12xlarge, load_in: fp16 }
 
 dna_extraction:
-  dataset: rand
+  # dataset rand(무작위 토큰 시퀀스) → base 모델(Mixtral, Solar)이 random 입력에
+  # generation을 하지 않아 100/100 빈 응답 발생 (2026-04-29 1차 추출). llm-dna는
+  # `text_response_embeddings_random_projection_concat` 방식이라 응답이 비면 모든
+  # 모델이 동일 fallback embedding으로 수렴 → DNA가 부정확하게 일치.
+  # squad(자연어 질문)는 base 모델도 generation을 시작하므로 안정적이며, ICLR'26
+  # 원논문도 squad/embedllm 등 자연어 prompt로 검증함. 9개 모델 전체 재추출 필요
+  # (probe set이 다르면 distance 비교 자체가 의미 없으므로).
+  dataset: squad
   max_samples: 100
   dna_dim: 128
   reduction_method: random_projection
