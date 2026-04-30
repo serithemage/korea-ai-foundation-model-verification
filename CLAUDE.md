@@ -130,3 +130,41 @@ docs/
 - `export <template>` — 온보딩·ADR 요약 등 출력
 - `qmd-index` — qmd 인덱스 빌드 (선택)
 - `lancedb-sync` — LanceDB 벡터 인덱스 동기화 (선택)
+
+## 인프라 운영 규칙 (LLM-DNA Phase 4–6 회고 기반)
+
+`experiments/llm-dna/` 또는 SageMaker training job을 다루는 모든 작업은 아래 9개 규칙을 따른다. 정량 근거와 사례는 [docs/06-cost-and-architecture-lessons.md](docs/06-cost-and-architecture-lessons.md)를, 자동 활성화 체크리스트는 `.claude/skills/llm-dna-extraction-playbook/SKILL.md`를 참조한다. 이 규칙들은 한 라운드($34 학습 곡선 비용)를 거쳐 도출된 *deterministic 안전 장치*이며 새 모델 검증·재시도 시 반드시 통과해야 한다.
+
+### 잡 제출 전 게이트
+
+1. **Spot quota 사전 확인**: SageMaker spot quota는 EC2 placement score와 독립이다. score=9여도 quota=0이면 못 쓴다. `aws service-quotas list-service-quotas --service-code sagemaker --region <r>`로 *제출 전* 확인하고, 부족 시 다른 리전으로 라우팅한다 — `submit_dna.py --region` 인자가 그 용도.
+
+2. **GPU 호환성 매트릭스 검증**: MoE 모델(Mixtral, Solar-Open, EXAONE MoE 계열)은 transformers 5.x의 `torch._grouped_mm` 사용으로 인해 Hopper(CC 9.0, H100/H200) 전용이다. L40S(8.9), A100(8.0), A10G(8.6)에서는 RuntimeError. yaml의 `instance_type`을 모델 architecture에 맞춰 명시해야 하며, `min_cuda_capability` 필드를 추가하면 자동 검증 가능.
+
+3. **Sanity gate를 entrypoint에 통합**: `dna_train.py`는 모델 로드 직후 1-prompt forward 검증을 *반드시* 수행하고 응답 길이 < 20이면 non-zero exit. 이 한 게이트가 빈 응답 silent failure, weight conversion 실패, GPU 호환성 RuntimeError를 모두 1분 안에 잡는다.
+
+### 잡 실행 중 거버넌스
+
+4. **30분 이상 wall time 잡은 중간 폴링 의무**: cold start + weights load 후 generation 단계의 `s/prompt`를 첫 5–10 prompt에서 측정해 expected ceiling을 넘으면 즉시 stop. Solar 1차 잡(200s/prompt)에서 25분 만에 잡은 사례가 그렇지 않았으면 $135까지 갈 비용을 $7.93에 멈췄다.
+
+5. **`max_new_tokens=256` cap을 default로**: sentence-encoder(`all-mpnet-base-v2`)의 ~512 토큰 컷오프 때문에 cap=256은 *fingerprint 무손실*. cap 없으면 base 모델이 max=2048까지 흘러 generation 시간 8× 증가. yaml `dna_extraction.max_new_tokens=256`이 default여야 하고 entrypoint에 `patch_model_wrapper_for_min_new_tokens(max_cap=256)`이 적용된다.
+
+6. **Deterministic 실패는 2회 후 격리**: 같은 에러 로그가 환경 차이 없이 두 번 반복되면 *재시도 금지*. K-EXAONE-236B 8회 재시도 ($13)가 이 규칙 부재의 비용이었다. 격리 옵션: (a) 모델 제외 + 사유 명시, (b) 같은 가족의 대체 모델로 substitute(K-EXAONE-236B → EXAONE-3.5), (c) 상류 라이브러리 호환성 회복 시점까지 deferral.
+
+### 잡 종료 후 검증
+
+7. **`--continue-on-error`는 통과 임계값과 페어링**: 모든 prompt가 실패해도 잡이 *Completed*로 보고되는 양면성이 있다. entrypoint 끝에서 `responses.json`의 nonempty ratio < 0.9이면 non-zero exit으로 *Failed* 마킹 → spot 자동 재시도까지 받는다.
+
+8. **결과 매칭은 latest-wins**: S3는 append-only이고 잡 prefix는 ISO timestamp(`YYYYMMDD-HHMMSS`)를 포함하므로 `max(prefix)` = chronologically latest. `analyze.py` 같은 후속 스크립트는 model_id별로 latest를 자동 선택해야 옛 빈 응답 결과가 정상 결과를 가리는 silent bug를 막는다.
+
+### 인프라 일반
+
+9. **HF cache는 `/tmp` (instance store SSD)로 redirect**: SageMaker 컨테이너의 root 볼륨(120GB)이 아니라 NVMe instance store(g7e.48xl 1.7TB, p5.48xl 28TB+)를 사용해야 100B+ 모델이 들어간다. `dna_train.py`의 `os.environ.setdefault("HF_HOME", "/tmp/.cache/huggingface")` + `HF_HUB_DISABLE_XET=1` + `HF_HUB_ENABLE_HF_TRANSFER=0` 조합이 검증된 설정.
+
+### 멀티 리전 stack
+
+CDK는 us-east-1 + us-west-2 동시 배포가 default다(`cdk/bin/llm-dna.ts`의 `CDK_TARGET_REGION` 환경변수, us-east-1은 짧은 stack name `LlmDnaStack` 유지, 다른 리전은 `LlmDnaStack-<region>` 접미). `roleName` 같은 IAM 글로벌 unique 자원은 제거해 충돌을 방지했다. 새 리전 추가 시 `cdk deploy --region <r>` 후 `submit_dna.py --region <r>`로 라우팅한다.
+
+### 비용 통제
+
+Spot 사용은 협상 불가능한 default다(on-demand 대비 ~68% 절감). 누적 비용 추적은 `aws sagemaker list-training-jobs` + `BillableTimeInSeconds`로 정량 가능하며, 라운드 종료 시 `docs/06-cost-and-architecture-lessons.md` 같은 회고 문서에 *낭비 카테고리*를 분리 기록해 다음 라운드에 반영한다.

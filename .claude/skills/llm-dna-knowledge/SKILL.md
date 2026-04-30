@@ -41,6 +41,10 @@ Skip when the project has no `wiki/` directory — fall back to external sources
 
 The project runs both `docs/tutorial/` (chronological Q&A learning log) and `wiki/` (compiled best understanding). Flow on a new question: **wiki check → answer → tutorial Q&A append → wiki update if non-trivial**. Drives both forward without duplication.
 
+## Content vs Operational — sister skill `llm-dna-extraction-playbook`
+
+This skill is for **content** questions (what is X, where is Y in the wiki, how does NJ tree work). For **operational** work — submitting/debugging SageMaker training jobs, modifying `dna_train.py`/`submit_dna.py`/`analyze.py`, planning Phase 5/6 retries, cost analysis — defer to [`llm-dna-extraction-playbook`](../llm-dna-extraction-playbook/SKILL.md). That sister skill encodes 9 architectural lessons from Phase 4–6 ($34 learning curve cost), CLAUDE.md "인프라 운영 규칙" 9 rules, and entrypoint patches required for correct llm-dna 0.2.x behavior. Do not answer "should I run job X with config Y" from this skill alone — route through the playbook.
+
 ## Wiki Maintenance Triggers
 
 Offer the user a wiki update when:

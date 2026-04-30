@@ -8,6 +8,7 @@ description: Use when planning, submitting, or debugging LLM-DNA fingerprint ext
 Operational checklist + entrypoint patches + yaml conventions for running LLM-DNA fingerprint extraction on SageMaker spot training without rediscovering the silent-failure traps that cost the first round ~$34.
 
 **Authoritative source**: [docs/06-cost-and-architecture-lessons.md](../../docs/06-cost-and-architecture-lessons.md) — quantitative analysis (77 jobs, $64.28 total, $33.93 wasted).
+**Project rule**: [CLAUDE.md "인프라 운영 규칙"](../../CLAUDE.md) section codifies the 9 rules below as *enforced project conventions* (every new model/job submission must pass them).
 **Result narrative**: [docs/05-llm-dna-analysis.md](../../docs/05-llm-dna-analysis.md).
 **Trap explanations** (for users): [docs/tutorial/05-방법론-평가.md Q17](../../docs/tutorial/05-방법론-평가.md), [docs/tutorial/01-기초개념.md Q15](../../docs/tutorial/01-기초개념.md).
 
