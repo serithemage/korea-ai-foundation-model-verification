@@ -95,6 +95,7 @@ docs/
 | `.claude/skills/update-tutorial/SKILL.md` | Q&A 작성 스타일 가이드 (내러티브) |
 | `.claude/skills/update-changelog/SKILL.md` | CHANGELOG 작성 가이드 |
 | `.claude/skills/llm-dna-knowledge/SKILL.md` | LLM-DNA·계통 분석 작업 시 wiki 우선 참조 컨벤션 |
+| `.claude/skills/llm-dna-extraction-playbook/SKILL.md` | LLM-DNA SageMaker spot 잡 운영 9가지 교훈 (Phase 4–6 회고 기반, $34 학습 곡선 비용 사전 차단용) |
 | `.claude/skills/karpathy-guidelines/SKILL.md` | LLM 코딩 함정 회피 4원칙 (Think/Simplicity/Surgical/Goal-Driven) — [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills), MIT |
 | `wiki/index.md` | LLM-DNA 지식 베이스 인덱스 (28페이지, [[wiki-link]] 교차참조) |
 | `experiments/llm-dna/` | LLM-DNA 추출 실험 (CDK + SageMaker spot training) |

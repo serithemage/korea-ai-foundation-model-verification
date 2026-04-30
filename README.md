@@ -284,6 +284,8 @@ AWS CDK(TypeScript) + SageMaker spot training으로 멀티 리전(us-east-1 + us
 
 > ⚠️ **이 판정은 functional fingerprint 단독 결과**입니다. Tokenizer 분석(1)·Architecture 분석(3)·Weight 분석(2)과 함께 종합 판단해야 하며, 단일 metric으로 from-scratch를 단정하는 것은 LayerNorm fingerprint fallacy 같은 함정에 빠질 수 있습니다.
 
+> 📊 **비용·아키텍처 회고**: 본 라운드 SageMaker 잡 77건 / 13.5h billable / **$64.28** (낭비율 52.8%, 학습 곡선 비용)에 대한 정량 분석과 다음 라운드(A.X-K1, K-EXAONE 재시도)에 그대로 적용 가능한 9가지 운영 교훈은 [docs/06-cost-and-architecture-lessons.md](docs/06-cost-and-architecture-lessons.md) 참조. 후속 검증자를 위한 실행 가능한 플레이북은 `.claude/skills/llm-dna-extraction-playbook/`로도 정리되어 있습니다.
+
 ---
 
 ## 검증 방법론
