@@ -115,8 +115,9 @@ def patch_model_wrapper_for_multi_gpu() -> None:
     log.info("Patched ModelWrapper at %s for multi-GPU non-quantized loading", fp)
 
 
-def patch_model_wrapper_for_min_new_tokens() -> None:
-    """Force base (non-instruct) models to generate non-empty responses.
+def patch_model_wrapper_for_min_new_tokens(max_cap: int | None = None) -> None:
+    """Force base (non-instruct) models to generate non-empty responses,
+    optionally capping the upper bound for speed.
 
     Symptom (2026-04-30, Mixtral-8x7B-v0.1 + Solar-Open-100B): both produced
     100/100 empty responses on rand AND squad probe sets. llm-dna's extraction
@@ -128,6 +129,12 @@ def patch_model_wrapper_for_min_new_tokens() -> None:
     Patch: inject `min_new_tokens=50` into the generation_kwargs so the model
     must emit at least 50 tokens regardless of EOS — produces a non-trivial
     text whose embedding becomes a meaningful fingerprint.
+
+    Optional max_cap: also clamp `max_new_tokens` to at most max_cap. Needed
+    for Solar-Open-100B which keeps generating up to the 2048 limit on every
+    prompt (200s/prompt on p5.48xl); capping to 256 brings it to ~30-40s/prompt
+    while still emitting enough text for a meaningful sentence-embedding
+    fingerprint.
     """
     import importlib.util
     spec = importlib.util.find_spec("llm_dna.models.ModelWrapper")
@@ -140,13 +147,20 @@ def patch_model_wrapper_for_min_new_tokens() -> None:
     if needle not in src:
         log.warning("min_new_tokens patch target not found (already patched or upstream changed?)")
         return
-    replacement = (
-        '"max_new_tokens": max_new_tokens,  # Dynamically calculated to be safe\n'
-        '                "min_new_tokens": min(50, max(1, max_new_tokens)),  # Patched: force base models to emit text'
-    )
+    if max_cap:
+        replacement = (
+            f'"max_new_tokens": min({max_cap}, max_new_tokens),  # Patched: cap for speed\n'
+            '                "min_new_tokens": min(50, max(1, max_new_tokens)),  # Patched: force base models to emit text'
+        )
+    else:
+        replacement = (
+            '"max_new_tokens": max_new_tokens,  # Dynamically calculated to be safe\n'
+            '                "min_new_tokens": min(50, max(1, max_new_tokens)),  # Patched: force base models to emit text'
+        )
     src = src.replace(needle, replacement)
     fp.write_text(src)
-    log.info("Patched ModelWrapper at %s for min_new_tokens=50", fp)
+    log.info("Patched ModelWrapper at %s for min_new_tokens=50%s", fp,
+             f", max_new_tokens cap={max_cap}" if max_cap else "")
 
 
 def main() -> int:
@@ -256,7 +270,12 @@ def main() -> int:
     # Force base models (Mixtral-base, Solar-base) to emit at least 50 tokens.
     # Without this, llm-dna's text_response_embeddings_random_projection_concat
     # collapses every empty-response model to the same fallback fingerprint.
-    patch_model_wrapper_for_min_new_tokens()
+    # For Solar-Open-100B specifically, also cap max_new_tokens — without a cap
+    # this model fills the full 2048 limit on every prompt and runs at
+    # ~200s/prompt on p5.48xl multi-GPU. Capping to 256 keeps the fingerprint
+    # text long enough for the sentence-encoder while restoring sane wall time.
+    max_cap = 256 if model_name == "upstage/Solar-Open-100B" else None
+    patch_model_wrapper_for_min_new_tokens(max_cap=max_cap)
 
     log.info("Running: %s", " ".join(args))
     proc = subprocess.run(args, check=False)

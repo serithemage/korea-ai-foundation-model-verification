@@ -84,21 +84,29 @@ def stack_outputs(region: str) -> dict[str, str]:
 
 
 def list_dna_artifacts(bucket: str, region: str) -> dict[str, str]:
-    """Return {model_id: s3_key_to_npy_or_json}."""
+    """Return {model_id: s3_key_to_npy_or_json} — latest job wins per model.
+
+    S3 retains every job's artifacts (rand-probe, retries, broken empty-response
+    runs). For each model_id we want the *latest valid* extraction, not the
+    first one alphabetically. Job prefixes contain ISO timestamps
+    (llmdna-<safe>-YYYYMMDD-HHMMSS), so alphabetical max == chronological max.
+    .npy is preferred over .json (richer format) regardless of timestamp.
+    """
     s3 = boto3.client("s3", region_name=region)
     paginator = s3.get_paginator("list_objects_v2")
-    artifacts: dict[str, str] = {}
-    # llm-dna writes <model>_dna.json (signature) alongside responses.json + summary.json.
-    # Match only the DNA file to avoid loading the other two.
     pat = re.compile(r"dna/(?P<job>[^/]+)/raw/(?P<model>[^/]+)/.+_dna\.(?:npy|json)$")
+    candidates: dict[str, list[str]] = {}
     for page in paginator.paginate(Bucket=bucket, Prefix="dna/"):
         for obj in page.get("Contents", []):
             m = pat.match(obj["Key"])
             if not m:
                 continue
             model = m.group("model").replace("__", "/")
-            if obj["Key"].endswith(".npy") or model not in artifacts:
-                artifacts[model] = obj["Key"]
+            candidates.setdefault(model, []).append(obj["Key"])
+    artifacts: dict[str, str] = {}
+    for model, keys in candidates.items():
+        npys = [k for k in keys if k.endswith(".npy")]
+        artifacts[model] = max(npys) if npys else max(keys)
     return artifacts
 
 

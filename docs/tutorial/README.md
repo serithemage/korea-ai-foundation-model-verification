@@ -11,6 +11,10 @@
 - **Q0**: 왜 "from scratch" vs "fine-tuning" 논란이 발생하나요?
 - **Q1**: LLM이 "from scratch"로 학습되었는지 어떻게 검증할 수 있나요?
 - **Q13**: 국가 AI 파운데이션 모델 사업(독파모)은 2026년 4월 현재 어떻게 진행되고 있나요?
+- **Q14**: LLM-DNA는 어떤 원리로 동작하나요?
+- **Q15**: LLM-DNA 논문의 방법과 실제 구현체(0.2.x)는 같은가요?
+- **Q16**: 추출된 DNA 벡터로 phylogenetic tree(계통수)는 어떻게 만들어지나요?
+- **Q18**: 12살 친구에게 LLM-DNA를 설명한다면? *(LLM-DNA 입문 — Q14 이전에 읽기 추천)*
 
 ### 2. Tokenizer 분석 ([02-tokenizer-분석.md](02-tokenizer-분석.md))
 
@@ -43,6 +47,7 @@ Weight 비교와 architecture 분석 방법을 다룹니다.
 검증 방법론에 대한 비판적 검토와 학술 연구 결과를 다룹니다.
 
 - **Q13**: 이 프로젝트의 검증 방법론에 대한 비판과 학술 연구 결과는?
+- **Q17**: LLM-DNA 같은 functional fingerprint 방법을 운영할 때 어떤 함정을 조심해야 하나요?
 
 ---
 

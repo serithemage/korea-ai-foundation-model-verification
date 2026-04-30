@@ -1,0 +1,18 @@
+         _______________ mistralai/Mixtral-8x7B-Instruct-v0.1
+   _____|
+  |     |     _________ meta-llama/Llama-3.3-70B-Instruct
+  |     |____|
+  |          |     ______ upstage/Solar-Open-100B
+  |          |____|
+ ,|               |      _________ meta-llama/Llama-3.1-8B
+ ||               |_____|
+ ||                     |   _____ zai-org/glm-4-9b-chat-hf
+ ||                     |__|
+ ||                        |____________ LGAI-EXAONE/EXAONE-3.5-32B-Instruct
+_||
+ ||_______ Qwen/Qwen2.5-32B
+ |
+ |____ Qwen/Qwen2.5-72B
+ |
+ |__ Qwen/Qwen2.5-7B
+
