@@ -19,6 +19,8 @@ sources: []
 
 [추가 방법 조사](../docs/08-from-scratch-methods.md) 이후 [AWM·GhostSpec 기반 CPU 시범](../docs/09-weight-provenance-pilot.md)을 수행했다. 표본 정렬과 선택 층의 결과이며 전체 논문 재현이나 독립 확증이 아니다. 개발사의 초기화·학습 기록을 검사하는 PoL/PoTD와 최종 공개본의 계통 검사를 구분한다.
 
+[Spot GPU 확대 검사](../docs/11-spot-weight-provenance-analysis.md)도 완료했다. 8개 모델과 알려진 Qwen Base→Instruct 대조를 포함했으며, Solar·EXAONE의 선택 층은 공개된 계승 경로와 부합했다. A.X K2는 K1 embedding과 낮은 상관을 보였지만 MLA/FP8 attention은 미검증이다. 전체 초기화의 확증과 GhostSpec 최종 점수는 보류한다.
+
 ## 기존 논의 — 2026-04-26 기준
 
 [[dokpamo-project]] 사업의 핵심 정의 이슈. "from scratch 학습"이란 무엇이고, 어디까지 허용되는가에 대한 명시적 정량 기준이 정부에 의해 발표되지 않은 상태.
