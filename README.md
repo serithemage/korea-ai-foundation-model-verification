@@ -20,6 +20,8 @@
 
 **[변경 이력 (Changelog)](CHANGELOG.md)** - 프로젝트의 진행 과정과 주요 변경 사항을 확인할 수 있습니다.
 
+**[쉽게 읽는 공개 검증 보고서](https://serithemage.github.io/korea-ai-foundation-model-verification/)** — 모델별 학습 경로, 직접 확인한 증거, 한계와 추가 검증 방법을 정리했습니다.
+
 ---
 
 ## 프로젝트 개요

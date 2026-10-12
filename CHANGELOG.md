@@ -15,6 +15,8 @@
 ### 문서 추가/수정
 
 - [2차평가 예비검증 보고서](docs/07-second-round-analysis.md), 고정 리비전·파일 해시·가중치 원본 표본 증거, 출처 노트를 추가하고 README의 세대별 판정을 분리.
+- Exa로 추가 판별 방법의 핵심 원문 8개를 조사하고 [방법론 보고서](docs/08-from-scratch-methods.md)와 출처 노트를 추가.
+- 모바일 대응 정적 보고서 페이지를 추가하고 GitHub Pages 공개 경로를 README에 연결.
 
 ### 방법론 개선
 
