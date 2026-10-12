@@ -62,6 +62,8 @@
 
 앞의 두 학습 경로는 개발사 기술 보고서에 명시돼 있다. 자체 선행 모델 계승과 외국 모델 차용은 구분한다. **세 모델 모두 전체 가중치 기원의 독립 확증은 미완료**다. 구조나 토크나이저 차이만으로 From Scratch를 확정하지 않는다. 자세한 근거·리비전·한계는 [2차평가 분석](docs/07-second-round-analysis.md), 원본 표본은 [증거 JSON](wiki/raw/2026-10-12_second-round-evidence.json)에 있다.
 
+**추가 검사:** [AWM·GhostSpec 기반 로컬 시범](docs/09-weight-provenance-pilot.md)에서 세 쌍의 embedding 정렬과 Solar·EXAONE의 선택 attention 층을 검사했다. A.X의 정렬에 쓰지 않은 embedding 행은 K1과 낮은 상관을 보였다. 전체 방법 재현·독립 확증과 구분하며, AWS GPU 확대는 [견적](docs/10-spot-verification-estimate.md) 승인 후 진행한다.
+
 ### 1차평가 공개 모델 — 기존 분석 기록
 
 아래와 이어지는 종합 결과는 **기존 세대의 당시 분석 기록**이다. 새 세대에 판정을 승계하지 않는다. 기존의 “구조 불일치/weight 비교 불가 → From Scratch 지지” 해석은 충분한 근거가 아니므로, 2차평가 분석에서는 적용하지 않는다.

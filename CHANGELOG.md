@@ -11,12 +11,14 @@
 ### 모델 검증
 
 - 2차평가 진출 Solar Open 2·A.X K2·K-EXAONE 2.0의 공개 자료, 전체 토크나이저, 선택 BF16 가중치 표본을 비교하고 독립 확증의 한계를 기록.
+- AWM·GhostSpec 기반 CPU 시범 검사로 embedding 정렬·미사용 행 확인·선택 GQA 층 UCKA/스펙트럼을 계산하고 원본 수치·재현 스크립트·수학 검증 3개를 보존; AWS 사용 비용 $0.
 
 ### 문서 추가/수정
 
 - [2차평가 예비검증 보고서](docs/07-second-round-analysis.md), 고정 리비전·파일 해시·가중치 원본 표본 증거, 출처 노트를 추가하고 README의 세대별 판정을 분리.
 - Exa로 추가 판별 방법의 핵심 원문 8개를 조사하고 [방법론 보고서](docs/08-from-scratch-methods.md)와 출처 노트를 추가.
 - 모바일 대응 정적 보고서 페이지를 추가하고 GitHub Pages 공개 경로를 README에 연결.
+- 지정 Spot 대시보드와 AWS 읽기 API로 리전·AZ·가격·quota를 확인하고 승인 전 확대 검사 견적을 작성.
 
 ### 방법론 개선
 

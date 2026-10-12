@@ -17,6 +17,8 @@ sources: []
 
 세 모델 모두 이전 세대의 전체 BPE merge 규칙을 계승했다. 동일 토크나이저는 가중치 재사용의 충분조건이 아니며, 구조가 달라도 일부 가중치를 이전할 수 있다. 아래의 4월 시점 논의나 기존 위키의 “구조 불일치 → From Scratch 지지” 표현을 새 세대의 판정 근거로 사용하지 않는다. [출처 노트](raw/2026-10-12_second-round-sources.md)와 [원본 표본·리비전](raw/2026-10-12_second-round-evidence.json)을 참조한다. 정부 사업 적격성은 별도로 검토해야 한다.
 
+[추가 방법 조사](../docs/08-from-scratch-methods.md) 이후 [AWM·GhostSpec 기반 CPU 시범](../docs/09-weight-provenance-pilot.md)을 수행했다. 표본 정렬과 선택 층의 결과이며 전체 논문 재현이나 독립 확증이 아니다. 개발사의 초기화·학습 기록을 검사하는 PoL/PoTD와 최종 공개본의 계통 검사를 구분한다.
+
 ## 기존 논의 — 2026-04-26 기준
 
 [[dokpamo-project]] 사업의 핵심 정의 이슈. "from scratch 학습"이란 무엇이고, 어디까지 허용되는가에 대한 명시적 정량 기준이 정부에 의해 발표되지 않은 상태.
