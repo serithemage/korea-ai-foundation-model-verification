@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+<title id="title">국가 AI 모델, 어디에서 출발했을까?</title>
+<desc id="desc">Solar Open 2는 선택 가중치 계승, K-EXAONE 2.0은 확장 후 계속 학습, A.X K2는 독립 확증 보류. 2차평가 진출 모델 공개본 예비검증.</desc>
+<rect width="1200" height="630" fill="#101c29"/>
+<g font-family="Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif">
+<rect x="60" y="62" width="5" height="30" rx="2" fill="#94b7ff"/>
+<text x="82" y="86" fill="#a9bed0" font-size="24" font-weight="600">2차평가 진출 3개 모델</text>
+<g fill="#e2edf7" font-size="68" font-weight="800" letter-spacing="-2">
+<text x="60" y="212">국가 AI 모델,</text>
+<text x="60" y="305">어디에서</text>
+<text x="60" y="398">출발했을까?</text>
+</g>
+<text x="62" y="464" fill="#a9bed0" font-size="24">학습의 출발점을 공개 자료와 가중치로 확인합니다.</text>
+<line x1="710" y1="150" x2="710" y2="467" stroke="#42576d" stroke-width="2"/>
+<g transform="translate(760 171)">
+<text y="0" fill="#e2edf7" font-size="31" font-weight="700">Solar Open 2</text>
+<rect y="20" width="248" height="41" rx="4" fill="#1e3049"/>
+<text x="15" y="48" fill="#94b7ff" font-size="22" font-weight="600">선택 가중치 계승</text>
+</g>
+<g transform="translate(760 293)">
+<text y="0" fill="#e2edf7" font-size="31" font-weight="700">K-EXAONE 2.0</text>
+<rect y="20" width="248" height="41" rx="4" fill="#1e3049"/>
+<text x="15" y="48" fill="#94b7ff" font-size="22" font-weight="600">확장 후 계속 학습</text>
+</g>
+<g transform="translate(760 415)">
+<text y="0" fill="#e2edf7" font-size="31" font-weight="700">A.X K2</text>
+<rect y="20" width="248" height="41" rx="4" fill="#ffe49c"/>
+<text x="15" y="48" fill="#183044" font-size="22" font-weight="700">독립 확증 보류</text>
+</g>
+<line x1="60" y1="530" x2="1140" y2="530" stroke="#42576d"/>
+<text x="60" y="580" fill="#e2edf7" font-size="22" font-weight="600">공개본 예비검증 · 판단 근거와 한계 공개</text>
+<text x="1140" y="580" text-anchor="end" fill="#a9bed0" font-size="20">2026.10.12</text>
+</g>
+</svg>
