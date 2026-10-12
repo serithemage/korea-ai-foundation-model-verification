@@ -5,11 +5,19 @@ tags: [policy, from-scratch, controversy, dokpamo]
 status: active
 confidence: high
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-12
 sources: []
 ---
 
 # From Scratch 논란
+
+## 2026-10-12: 2차평가 공개본 조사
+
+[2차평가 예비검증](../docs/07-second-round-analysis.md)은 **이번 세대의 전체 무작위 초기화**와 **자체 선행 모델 계승**을 구분한다. Solar Open 2는 선택 가중치 이전, K-EXAONE 2.0은 upcycling을 공개했다. A.X K2는 From Scratch를 주장하며 선택 표본은 K1과 낮은 상관을 보였지만 독립 확증은 보류했다.
+
+세 모델 모두 이전 세대의 전체 BPE merge 규칙을 계승했다. 동일 토크나이저는 가중치 재사용의 충분조건이 아니며, 구조가 달라도 일부 가중치를 이전할 수 있다. 아래의 4월 시점 논의나 기존 위키의 “구조 불일치 → From Scratch 지지” 표현을 새 세대의 판정 근거로 사용하지 않는다. [출처 노트](raw/2026-10-12_second-round-sources.md)와 [원본 표본·리비전](raw/2026-10-12_second-round-evidence.json)을 참조한다. 정부 사업 적격성은 별도로 검토해야 한다.
+
+## 기존 논의 — 2026-04-26 기준
 
 [[dokpamo-project]] 사업의 핵심 정의 이슈. "from scratch 학습"이란 무엇이고, 어디까지 허용되는가에 대한 명시적 정량 기준이 정부에 의해 발표되지 않은 상태.
 
